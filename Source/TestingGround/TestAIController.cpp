@@ -2,6 +2,7 @@
 
 #include "TestAIController.h"
 #include "engine.h"
+#include "TestBasicAI.h"
 
 
 
@@ -31,7 +32,12 @@ void ATestAIController::Tick(float DeltaTime)
 
 void ATestAIController::SpawnAI()
 {
-	SimpleAI
+	
+
+	FVector Location(0.0f, 0.0f, 0.0f);
+	FRotator Rotation(0.0f, 0.0f, 0.0f);
+	FActorSpawnParameters SpawnInfo;
+	GetWorld()->SpawnActor<ATestBasicAI>(Location, Rotation, SpawnInfo);
 
 
 
