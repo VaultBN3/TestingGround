@@ -16,7 +16,8 @@ ATestAIController::ATestAIController()
 
 // Called when the game starts or when spawned
 void ATestAIController::BeginPlay()
-{
+{	
+
 	Super::BeginPlay();
 	SpawnAI();
 	
@@ -28,6 +29,7 @@ void ATestAIController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	
+	
 }
 
 void ATestAIController::SpawnAI()
@@ -37,6 +39,9 @@ void ATestAIController::SpawnAI()
 	FVector Location(0.0f, 0.0f, 0.0f);
 	FRotator Rotation(0.0f, 0.0f, 0.0f);
 	FActorSpawnParameters SpawnInfo;
+	
+	ACharacter* myCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	Location = myCharacter->GetActorLocation();
 	GetWorld()->SpawnActor<ATestBasicAI>(Location, Rotation, SpawnInfo);
 
 
