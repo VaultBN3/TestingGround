@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "TestAIController.generated.h"
+#include "MyActor.generated.h"
 
 UCLASS()
-class TESTINGGROUND_API ATestAIController : public AActor
+class TESTINGGROUND_API AMyActor : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ATestAIController();
+	AMyActor();
 
 protected:
 	// Called when the game starts or when spawned
@@ -22,10 +22,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	void SpawnAI();
 
 	
-
-
-
+	
 };

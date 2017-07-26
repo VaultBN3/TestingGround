@@ -29,14 +29,13 @@ void ATestAIController::Tick(float DeltaTime)
 	
 }
 
-void ATestAIController::SpawnAI() {
+void ATestAIController::SpawnAI()
+{
+	SimpleAI
 
-	FTimerHandle UnusedHandle;
-	GetWorldTimerManager().SetTimer(UnusedHandle, this, 1.0f, 1.0f, true);
 
-		
-	
 
 
 }
+
 
