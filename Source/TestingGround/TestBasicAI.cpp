@@ -40,7 +40,7 @@ void ATestBasicAI::BeginPlay()
 	Super::BeginPlay();
 	speed = FMath::FRandRange(100.0f, 300.0f);
 	rotationSpeed = 4.0f;
-	neighbourDistance = 600.0f;
+	neighbourDistance = 100.0f;
 		
 }
 
@@ -48,10 +48,35 @@ void ATestBasicAI::BeginPlay()
 void ATestBasicAI::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	bool turning = false;
 
-	if (FMath::RandRange(0, 5) < 1) {
-		ApplyRules(DeltaTime);
+	if (this->GetActorLocation().Size() >= 2000.0f) {
+		
+		turning = true;
 	}
+	else {
+
+		turning = false;
+	}
+
+	if (turning) {
+
+		FVector direction = FVector(0, 0, 0) - this->GetActorLocation();
+
+		this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), rotationSpeed * DeltaTime));
+		speed = FMath::FRandRange(100.0f, 300.0f);
+
+	}
+	else {
+
+
+		if (FMath::RandRange(0, 5) < 1) {
+			ApplyRules(DeltaTime);
+		}
+
+
+	}
+
 
 	//this->SetActorRelativeLocation(FVector(0,0,speed*DeltaTime));
 	
@@ -102,7 +127,7 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 					vcentre = ActorItr->GetActorLocation();
 					groupSize++;
 
-					if (dist < 20.0f) 
+					if (dist < 100.0f) 
 					{
 
 						vavoid = vavoid + (this->GetActorLocation() - ActorItr->GetActorLocation());
