@@ -24,7 +24,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void SpawnAI();
 	void ControlledSpawn();
+	void MoveAI();
 	int AICounter;
+	int MaxAI;
+	
 
 	
 

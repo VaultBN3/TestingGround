@@ -19,6 +19,8 @@ ATestBasicAI::ATestBasicAI()
 	//mesh->AttachParent = RootComponent;
 	mesh->SetMaterial(0, Material_Blue.Object);
 	mesh->SetSimulatePhysics(true);
+	mesh->BodyInstance.bLockXRotation = true;
+	mesh->BodyInstance.bLockYRotation = true;
 
 	RootComponent = mesh;
 
