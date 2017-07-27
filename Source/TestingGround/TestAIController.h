@@ -32,6 +32,8 @@ public:
 	int MaxAI;
 	int ContainerSize;
 	std::vector<ATestBasicAI*> bots;
+	FVector GoalPosition;
+	std::vector<ATestBasicAI*> ReturnBots();
 	
 
 	

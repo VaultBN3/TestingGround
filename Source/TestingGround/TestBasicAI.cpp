@@ -2,6 +2,7 @@
 
 #include "TestBasicAI.h"
 #include "engine.h"
+#include "TestAIController.h"
 
 
 
@@ -25,12 +26,16 @@ ATestBasicAI::ATestBasicAI()
 	RootComponent = mesh;
 
 
+	 //speed = FMath::FRandRange(2.0f, 5.0f);
+
 }
 
 // Called when the game starts or when spawned
 void ATestBasicAI::BeginPlay()
 {
 	Super::BeginPlay();
+	speed = FMath::FRandRange(100.0f, 140.0f);
+	
 
 	
 }
@@ -41,6 +46,15 @@ void ATestBasicAI::BeginPlay()
 void ATestBasicAI::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
+	this->SetActorLocation(this->GetActorLocation() + ((this->GetActorForwardVector() * speed) * DeltaTime), false);
+
+	
+
+
+
+
 	
 }
 

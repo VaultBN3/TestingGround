@@ -20,6 +20,10 @@ ATestAIController::ATestAIController()
 	vector<ATestBasicAI*> botVector(50);
 	bots = botVector;
 	ContainerSize = 1700;
+
+
+	FVector Location(0.0f, 0.0f,0.0f);
+	GoalPosition = Location;
 }
 
 // Called when the game starts or when spawned
@@ -35,7 +39,14 @@ void ATestAIController::BeginPlay()
 void ATestAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	MoveAI();
+	//MoveAI();
+	if (FMath::RandRange(0, 10000) < 50) {
+		float y = FMath::FRandRange(-ContainerSize, ContainerSize);
+		float x = FMath::FRandRange(-ContainerSize, ContainerSize);
+		FVector NewGoalPosition(x, y, 0.0f);
+		GoalPosition = NewGoalPosition;
+
+	}
 	
 
 }
@@ -61,6 +72,13 @@ void ATestAIController::SpawnAI()
 		AICounter += 1;
 	}
 
+
+}
+
+
+vector<ATestBasicAI*> ATestAIController::ReturnBots() {
+
+	return bots;
 
 }
 
