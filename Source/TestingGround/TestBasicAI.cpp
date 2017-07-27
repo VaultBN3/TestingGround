@@ -51,7 +51,7 @@ void ATestBasicAI::Tick(float DeltaTime)
 	this->SetActorLocation(this->GetActorLocation() + ((this->GetActorForwardVector() * speed) * DeltaTime), false);
 
 	
-
+	//https://wiki.unrealengine.com/Iterators:_Object_%26_Actor_Iterators,_Optional_Class_Scope_For_Faster_Search
 
 
 
