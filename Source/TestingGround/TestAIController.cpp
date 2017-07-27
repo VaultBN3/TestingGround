@@ -16,7 +16,7 @@ ATestAIController::ATestAIController()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	AICounter = 0;
-	MaxAI = 10;
+	MaxAI = 50;
 	vector<ATestBasicAI*> botVector(50);
 	bots = botVector;
 	ContainerSize = 1700;
@@ -41,9 +41,10 @@ void ATestAIController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	//MoveAI();
 	if (FMath::RandRange(0, 10000) < 50) {
+		float z = FMath::FRandRange(-ContainerSize, ContainerSize);
 		float y = FMath::FRandRange(-ContainerSize, ContainerSize);
 		float x = FMath::FRandRange(-ContainerSize, ContainerSize);
-		FVector NewGoalPosition(x, y, 0.0f);
+		FVector NewGoalPosition(x, y, z);
 		GoalPosition = NewGoalPosition;
 
 	}
@@ -71,7 +72,6 @@ void ATestAIController::SpawnAI()
 
 		AICounter += 1;
 	}
-
 
 }
 

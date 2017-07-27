@@ -22,7 +22,13 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	void ApplyRules(float DeltaTime);
+	void GetController();
 	float speed;
+	float rotationSpeed;
+	FVector averageHeading;
+	FVector averagePosition;
+	float neighbourDistance;
 
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* mesh;
