@@ -16,9 +16,10 @@ ATestAIController::ATestAIController()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	AICounter = 0;
-	MaxAI = 1;
+	MaxAI = 10;
 	vector<ATestBasicAI*> botVector(50);
 	bots = botVector;
+	ContainerSize = 1700;
 }
 
 // Called when the game starts or when spawned
@@ -26,7 +27,7 @@ void ATestAIController::BeginPlay()
 {	
 
 	Super::BeginPlay();
-	ControlledSpawn();
+	AllSpawn();
 	
 }
 
@@ -34,9 +35,9 @@ void ATestAIController::BeginPlay()
 void ATestAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	MoveAI();
 	
-	
-	
+
 }
 
 void ATestAIController::SpawnAI()
@@ -44,8 +45,8 @@ void ATestAIController::SpawnAI()
 	//ATestBasicAI* botArray[50];
 	
 	if (AICounter < MaxAI) {
-		float y = FMath::FRandRange(-500, 500);
-		float x = FMath::FRandRange(-500, 500);
+		float y = FMath::FRandRange(-ContainerSize, ContainerSize);
+		float x = FMath::FRandRange(-ContainerSize, ContainerSize);
 		FVector Location(x, y, 400.0f);
 		FRotator Rotation(0.0f, 0.0f, 0.0f);
 		FActorSpawnParameters SpawnInfo;
@@ -63,7 +64,7 @@ void ATestAIController::SpawnAI()
 
 }
 
-void ATestAIController::ControlledSpawn() {
+void ATestAIController::TimedSpawn() {
 
 		
 		FTimerHandle SpawnHandle;
@@ -76,6 +77,24 @@ void ATestAIController::ControlledSpawn() {
 		
 
 }
+
+void ATestAIController::AllSpawn() {
+
+	for (int i = 0; i < MaxAI; i++) {
+
+		SpawnAI();
+
+	}
+
+	//FTimerHandle MoveHandle;
+
+	//GetWorldTimerManager().SetTimer(MoveHandle, this, &ATestAIController::MoveAI, 0.01f, true);
+
+
+
+
+}
+
 
 void ATestAIController::MoveAI() {
 	ACharacter* myCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
