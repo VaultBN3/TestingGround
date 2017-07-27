@@ -25,10 +25,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	void SpawnAI();
-	void ControlledSpawn();
+	void TimedSpawn();
+	void AllSpawn();
 	void MoveAI();
 	int AICounter;
 	int MaxAI;
+	int ContainerSize;
 	std::vector<ATestBasicAI*> bots;
 	
 
