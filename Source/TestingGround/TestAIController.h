@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include <vector>
+#include "TestBasicAI.h"
 #include "TestAIController.generated.h"
 
 UCLASS()
@@ -27,6 +29,7 @@ public:
 	void MoveAI();
 	int AICounter;
 	int MaxAI;
+	std::vector<ATestBasicAI*> bots;
 	
 
 	
