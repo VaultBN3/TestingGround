@@ -22,11 +22,11 @@ ATestBasicAI::ATestBasicAI()
 
 
 	UMaterialInstanceDynamic* DynMat = UMaterialInstanceDynamic::Create(Material_Blue.Object, NULL);
+	float bound = 10.0f;
 
-
-	FLinearColor Red(FMath::FRandRange(0,4.0f), FMath::FRandRange(0, 4.0f), FMath::FRandRange(0, 4.0f), FMath::FRandRange(0, 4.0f));
-	FLinearColor Green(FMath::FRandRange(0, 4.0f), FMath::FRandRange(0, 4.0f), FMath::FRandRange(0, 4.0f), FMath::FRandRange(0, 4.0f));
-	FLinearColor InterpedColor = FMath::Lerp(Red, Green, FMath::FRandRange(0, 4.0f));
+	FLinearColor Red(FMath::FRandRange(0,bound), FMath::FRandRange(0, bound), FMath::FRandRange(0, bound), FMath::FRandRange(0, bound));
+	FLinearColor Green(FMath::FRandRange(0, bound), FMath::FRandRange(0, bound), FMath::FRandRange(0, bound), FMath::FRandRange(0, bound));
+	FLinearColor InterpedColor = FMath::Lerp(Red, Green, FMath::FRandRange(0, bound));
 	DynMat->SetVectorParameterValue(FName("colour"), InterpedColor);
 
 
@@ -37,6 +37,7 @@ ATestBasicAI::ATestBasicAI()
 	//mesh->SetMaterial(0, Material_Blue.Object);
 	mesh->SetMaterial(0, DynMat);
 	//mesh->SetSimulatePhysics(true);
+
 	//mesh->BodyInstance.bLockXRotation = true;
 	//mesh->BodyInstance.bLockYRotation = true;
 
@@ -51,10 +52,11 @@ ATestBasicAI::ATestBasicAI()
 void ATestBasicAI::BeginPlay()
 {
 	Super::BeginPlay();
+
 	speed = FMath::FRandRange(500.0f, 800.0f);
 	//100 to 300 before
 	rotationSpeed = 4.0f;
-	neighbourDistance = 200.0f;
+	neighbourDistance = 500.0f;
 		//1000.0f for bit cluster
 }
 
@@ -64,7 +66,7 @@ void ATestBasicAI::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	bool turning = false;
 
-	if (this->GetActorLocation().Size() >= 5000.0f) {
+	if (this->GetActorLocation().Size() >= 4000.0f) {
 		turning = true;
 	}
 	else {
@@ -108,8 +110,8 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 		bots = ActorItr->bots;
 		goalPos = ActorItr->GoalPosition;
 
-		FVector vcentre;
-		FVector vavoid;
+		FVector vcentre(0,0,0);
+		FVector vavoid(0,0,0);
 
 		// gSpeed = speed does some crazy shit
 		float gSpeed = 0.1f;
@@ -129,7 +131,7 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 					groupSize++;
 
 					// was 2.0f
-					if (dist < 200.0f) 
+					if (dist <= 50.0f) 
 					{
 						vavoid = vavoid + (this->GetActorLocation() - ActorItr->GetActorLocation());
 					}
@@ -142,10 +144,20 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 
 		if (groupSize > 0) {
 
+			if (groupSize > 20) {
+				float ContainerSize = 4000.0f;
+				float z = FMath::FRandRange(-ContainerSize, ContainerSize);
+				float y = FMath::FRandRange(-ContainerSize, ContainerSize);
+				float x = FMath::FRandRange(-ContainerSize, ContainerSize);
+				FVector NewGoalPosition(x, y, z);
+				goalPos = NewGoalPosition;
+
+			}
+
 			vcentre = vcentre / groupSize + (goalPos - this->GetActorLocation());
 			speed = gSpeed / groupSize;
 
-			FVector direction = (vcentre + vavoid) - this->GetActorLocation();
+			FVector direction = (vcentre + (vavoid)) - this->GetActorLocation();
 			if (direction != FVector(0, 0, 0)) {
 			
 

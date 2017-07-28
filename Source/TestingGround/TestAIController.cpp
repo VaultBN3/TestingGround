@@ -19,7 +19,7 @@ ATestAIController::ATestAIController()
 	MaxAI = 400;
 	vector<ATestBasicAI*> botVector(MaxAI);
 	bots = botVector;
-	ContainerSize = 5000;
+	ContainerSize = 3000;
 
 
 	FVector Location(0.0f, 0.0f,2000.0f);
@@ -40,7 +40,7 @@ void ATestAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	//MoveAI();
-	if (FMath::RandRange(0, 10000) < 50) {
+	if (FMath::RandRange(0, 1000000) < 50) {
 		float z = FMath::FRandRange(-ContainerSize, ContainerSize);
 		float y = FMath::FRandRange(-ContainerSize, ContainerSize);
 		float x = FMath::FRandRange(-ContainerSize, ContainerSize);
