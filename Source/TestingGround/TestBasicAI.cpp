@@ -20,11 +20,22 @@ ATestBasicAI::ATestBasicAI()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>StaticMesh(TEXT("/Game/Geometry/Meshes/1M_Cube_Chamfer.1M_Cube_Chamfer"));
 	static ConstructorHelpers::FObjectFinder <UMaterialInterface>Material_Blue(TEXT("/Game/TopDownBP/Blueprints/EmissiveMat.EmissiveMat"));
 
+
+	UMaterialInstanceDynamic* DynMat = UMaterialInstanceDynamic::Create(Material_Blue.Object, NULL);
+
+
+	FLinearColor Red(FMath::FRandRange(0,4.0f), FMath::FRandRange(0, 4.0f), FMath::FRandRange(0, 4.0f), FMath::FRandRange(0, 4.0f));
+	FLinearColor Green(FMath::FRandRange(0, 4.0f), FMath::FRandRange(0, 4.0f), FMath::FRandRange(0, 4.0f), FMath::FRandRange(0, 4.0f));
+	FLinearColor InterpedColor = FMath::Lerp(Red, Green, FMath::FRandRange(0, 4.0f));
+	DynMat->SetVectorParameterValue(FName("colour"), InterpedColor);
+
+
 	//Material'/Game/TopDownBP/Blueprints/EmissiveMat.EmissiveMat'
 
 	mesh->SetStaticMesh(StaticMesh.Object);
 	//mesh->AttachParent = RootComponent;
-	mesh->SetMaterial(0, Material_Blue.Object);
+	//mesh->SetMaterial(0, Material_Blue.Object);
+	mesh->SetMaterial(0, DynMat);
 	//mesh->SetSimulatePhysics(true);
 	//mesh->BodyInstance.bLockXRotation = true;
 	//mesh->BodyInstance.bLockYRotation = true;
