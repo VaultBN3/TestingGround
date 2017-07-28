@@ -29,6 +29,8 @@ public:
 	FVector averageHeading;
 	FVector averagePosition;
 	float neighbourDistance;
+	float speedUpper;
+	float speedLower;
 
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* mesh;

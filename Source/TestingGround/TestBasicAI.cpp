@@ -17,6 +17,7 @@ ATestBasicAI::ATestBasicAI()
 	PrimaryActorTick.bCanEverTick = true;
 	
 	mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MESH"));
+	//static ConstructorHelpers::FObjectFinder<UStaticMesh>StaticMesh(TEXT("/Game/StarterContent/Props/MaterialSphere.MaterialSphere")); 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>StaticMesh(TEXT("/Game/Geometry/Meshes/1M_Cube_Chamfer.1M_Cube_Chamfer"));
 	static ConstructorHelpers::FObjectFinder <UMaterialInterface>Material_Blue(TEXT("/Game/TopDownBP/Blueprints/EmissiveMat.EmissiveMat"));
 
@@ -35,7 +36,7 @@ ATestBasicAI::ATestBasicAI()
 	mesh->SetStaticMesh(StaticMesh.Object);
 	//mesh->AttachParent = RootComponent;
 	//mesh->SetMaterial(0, Material_Blue.Object);
-	mesh->SetMaterial(0, DynMat);
+	mesh->SetMaterial(0, DynMat); 
 	//mesh->SetSimulatePhysics(true);
 
 	//mesh->BodyInstance.bLockXRotation = true;
@@ -52,11 +53,15 @@ ATestBasicAI::ATestBasicAI()
 void ATestBasicAI::BeginPlay()
 {
 	Super::BeginPlay();
+	speedUpper = 350.0f;
+	speedLower = 700.0f;
 
-	speed = FMath::FRandRange(500.0f, 800.0f);
+
+
+	speed = FMath::FRandRange(speedUpper, speedLower);
 	//100 to 300 before
 	rotationSpeed = 4.0f;
-	neighbourDistance = 500.0f;
+	neighbourDistance = 1000.0f;
 		//1000.0f for bit cluster
 }
 
@@ -66,7 +71,7 @@ void ATestBasicAI::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	bool turning = false;
 
-	if (this->GetActorLocation().Size() >= 4000.0f) {
+	if (this->GetActorLocation().Size() >= 10000) {
 		turning = true;
 	}
 	else {
@@ -76,10 +81,11 @@ void ATestBasicAI::Tick(float DeltaTime)
 
 		FVector direction = FVector(0, 0, 0) - this->GetActorLocation();
 		this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), rotationSpeed * DeltaTime));
-		speed = FMath::FRandRange(500.0f, 800.0f);
+		speed = FMath::FRandRange(speedUpper, speedLower);
 
 	}
 	else {
+		// was 5
 		if (FMath::RandRange(0, 5) < 1) {
 			ApplyRules(DeltaTime);
 		}
@@ -144,15 +150,7 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 
 		if (groupSize > 0) {
 
-			if (groupSize > 20) {
-				float ContainerSize = 4000.0f;
-				float z = FMath::FRandRange(-ContainerSize, ContainerSize);
-				float y = FMath::FRandRange(-ContainerSize, ContainerSize);
-				float x = FMath::FRandRange(-ContainerSize, ContainerSize);
-				FVector NewGoalPosition(x, y, z);
-				goalPos = NewGoalPosition;
-
-			}
+	
 
 			vcentre = vcentre / groupSize + (goalPos - this->GetActorLocation());
 			speed = gSpeed / groupSize;
