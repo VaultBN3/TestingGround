@@ -19,7 +19,7 @@ ATestAIController::ATestAIController()
 	MaxAI = 400;
 	vector<ATestBasicAI*> botVector(MaxAI);
 	bots = botVector;
-	ContainerSize = 1700;
+	ContainerSize = 5000;
 
 
 	FVector Location(0.0f, 0.0f,2000.0f);

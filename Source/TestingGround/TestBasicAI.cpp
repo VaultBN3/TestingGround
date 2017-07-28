@@ -63,7 +63,7 @@ void ATestBasicAI::Tick(float DeltaTime)
 
 		FVector direction = FVector(0, 0, 0) - this->GetActorLocation();
 		this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), rotationSpeed * DeltaTime));
-		speed = FMath::FRandRange(100.0f, 300.0f);
+		speed = FMath::FRandRange(500.0f, 800.0f);
 
 	}
 	else {
@@ -100,6 +100,7 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 		FVector vcentre;
 		FVector vavoid;
 
+		// gSpeed = speed does some crazy shit
 		float gSpeed = 0.1f;
 		float dist;
 
@@ -113,7 +114,7 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 			
 				if (dist <= neighbourDistance) 
 				{
-					vcentre = ActorItr->GetActorLocation();
+					vcentre += ActorItr->GetActorLocation();
 					groupSize++;
 
 					// was 2.0f
