@@ -18,7 +18,9 @@ ATestBasicAI::ATestBasicAI()
 	
 	mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MESH"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>StaticMesh(TEXT("/Game/Geometry/Meshes/1M_Cube_Chamfer.1M_Cube_Chamfer"));
-	static ConstructorHelpers::FObjectFinder <UMaterialInterface>Material_Blue(TEXT("/Game/Geometry/Meshes/1M_Cube_Chamfer.1M_Cube_Chamfer"));
+	static ConstructorHelpers::FObjectFinder <UMaterialInterface>Material_Blue(TEXT("/Game/TopDownBP/Blueprints/EmissiveMat.EmissiveMat"));
+
+	//Material'/Game/TopDownBP/Blueprints/EmissiveMat.EmissiveMat'
 
 	mesh->SetStaticMesh(StaticMesh.Object);
 	//mesh->AttachParent = RootComponent;
@@ -38,10 +40,11 @@ ATestBasicAI::ATestBasicAI()
 void ATestBasicAI::BeginPlay()
 {
 	Super::BeginPlay();
-	speed = FMath::FRandRange(100.0f, 300.0f);
+	speed = FMath::FRandRange(500.0f, 800.0f);
+	//100 to 300 before
 	rotationSpeed = 4.0f;
-	neighbourDistance = 1000.0f;
-		
+	neighbourDistance = 400.0f;
+		//1000.0f for bit cluster
 }
 
 // Called every frame
@@ -113,7 +116,8 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 					vcentre = ActorItr->GetActorLocation();
 					groupSize++;
 
-					if (dist < 2.0f) 
+					// was 2.0f
+					if (dist < 200.0f) 
 					{
 						vavoid = vavoid + (this->GetActorLocation() - ActorItr->GetActorLocation());
 					}
