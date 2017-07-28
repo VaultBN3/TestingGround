@@ -54,7 +54,7 @@ void ATestBasicAI::BeginPlay()
 	speed = FMath::FRandRange(500.0f, 800.0f);
 	//100 to 300 before
 	rotationSpeed = 4.0f;
-	neighbourDistance = 400.0f;
+	neighbourDistance = 200.0f;
 		//1000.0f for bit cluster
 }
 
