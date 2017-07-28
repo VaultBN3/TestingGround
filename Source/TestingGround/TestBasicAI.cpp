@@ -40,7 +40,7 @@ void ATestBasicAI::BeginPlay()
 	Super::BeginPlay();
 	speed = FMath::FRandRange(100.0f, 300.0f);
 	rotationSpeed = 4.0f;
-	neighbourDistance = 100.0f;
+	neighbourDistance = 1000.0f;
 		
 }
 
@@ -50,26 +50,20 @@ void ATestBasicAI::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	bool turning = false;
 
-	if (this->GetActorLocation().Size() >= 2000.0f) {
-		
+	if (this->GetActorLocation().Size() >= 5000.0f) {
 		turning = true;
 	}
 	else {
-
 		turning = false;
 	}
-
 	if (turning) {
 
 		FVector direction = FVector(0, 0, 0) - this->GetActorLocation();
-
 		this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), rotationSpeed * DeltaTime));
 		speed = FMath::FRandRange(100.0f, 300.0f);
 
 	}
 	else {
-
-
 		if (FMath::RandRange(0, 5) < 1) {
 			ApplyRules(DeltaTime);
 		}
@@ -77,19 +71,12 @@ void ATestBasicAI::Tick(float DeltaTime)
 
 	}
 
-
 	//this->SetActorRelativeLocation(FVector(0,0,speed*DeltaTime));
 	
 	this->SetActorLocation(this->GetActorLocation() + ((this->GetActorForwardVector() * speed) * DeltaTime), false);
 	
-	
-
-	
 	//https://wiki.unrealengine.com/Iterators:_Object_%26_Actor_Iterators,_Optional_Class_Scope_For_Faster_Search
 
-
-
-	
 }
 
 void ATestBasicAI::GetController() {
@@ -107,7 +94,6 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 		bots = ActorItr->bots;
 		goalPos = ActorItr->GoalPosition;
 
-
 		FVector vcentre;
 		FVector vavoid;
 
@@ -121,26 +107,22 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 			if (ActorItr->GetName() != this->GetName()) 
 			{
 				dist = (this->GetActorLocation() - ActorItr->GetActorLocation()).Size();
-				
+			
 				if (dist <= neighbourDistance) 
 				{
 					vcentre = ActorItr->GetActorLocation();
 					groupSize++;
 
-					if (dist < 100.0f) 
+					if (dist < 2.0f) 
 					{
-
 						vavoid = vavoid + (this->GetActorLocation() - ActorItr->GetActorLocation());
 					}
 
 					gSpeed = gSpeed + ActorItr->speed;
 
 				}
-
 			}
-
 		}
-
 
 		if (groupSize > 0) {
 
@@ -153,19 +135,8 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 
 				this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), rotationSpeed * DeltaTime));
 
-
-
-
 			}
-
-
-
 		}
-
-
-
-
-
 	}
 
 }
