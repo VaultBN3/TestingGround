@@ -3,6 +3,7 @@
 #include "TestBasicAI.h"
 #include "engine.h"
 #include "TestAIController.h"
+#include "Objective.h"
 #include <vector>
 
 using namespace std;
@@ -37,10 +38,18 @@ ATestBasicAI::ATestBasicAI()
 	//mesh->AttachParent = RootComponent;
 	//mesh->SetMaterial(0, Material_Blue.Object);
 	mesh->SetMaterial(0, DynMat); 
-	//mesh->SetSimulatePhysics(true);
+	
+	mesh->SetSimulatePhysics(true);
+	//mesh->SetCollisionEnabled(TEXT("BlockAll"));
+	//mesh->SetCollisionProfileName(TEXT("OverlapAll"));
+	
 
 	//mesh->BodyInstance.bLockXRotation = true;
 	//mesh->BodyInstance.bLockYRotation = true;
+
+	mesh->SetEnableGravity(false);
+
+	//mesh->SetCollisionProfileName(TEXT("BlockAll"));
 
 	RootComponent = mesh;
 
@@ -53,12 +62,15 @@ ATestBasicAI::ATestBasicAI()
 void ATestBasicAI::BeginPlay()
 {
 	Super::BeginPlay();
-	speedUpper = 350.0f;
-	speedLower = 700.0f;
+	//speedUpper = 1500.0f;
+	//speedLower = 2500.0f;
 
+	speedUpper = 50.0f;
+	speedLower = 100.0f;
 
+	
 
-	speed = FMath::FRandRange(speedUpper, speedLower);
+	speed = FMath::FRandRange(speedLower, speedUpper);
 	//100 to 300 before
 	rotationSpeed = 4.0f;
 	neighbourDistance = 1000.0f;
@@ -71,6 +83,16 @@ void ATestBasicAI::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	bool turning = false;
 
+
+	for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
+
+	
+
+
+	}
+
+
+
 	if (this->GetActorLocation().Size() >= 10000) {
 		turning = true;
 	}
@@ -81,7 +103,7 @@ void ATestBasicAI::Tick(float DeltaTime)
 
 		FVector direction = FVector(0, 0, 0) - this->GetActorLocation();
 		this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), rotationSpeed * DeltaTime));
-		speed = FMath::FRandRange(speedUpper, speedLower);
+		speed = FMath::FRandRange(speedLower, speedUpper);
 
 	}
 	else {
@@ -137,7 +159,7 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 					groupSize++;
 
 					// was 2.0f
-					if (dist <= 50.0f) 
+					if (dist <= 10.0f) 
 					{
 						vavoid = vavoid + (this->GetActorLocation() - ActorItr->GetActorLocation());
 					}
@@ -157,10 +179,13 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 
 			FVector direction = (vcentre + (vavoid)) - this->GetActorLocation();
 			if (direction != FVector(0, 0, 0)) {
-			
+				if (FMath::RandRange(0, 10000) < 100) {
+					speed = speed * 10;
+					// needs to be on a timer.
+				}
 
 				this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), rotationSpeed * DeltaTime));
-
+				speed = FMath::FRandRange(speedUpper, speedLower);
 			}
 		}
 	}

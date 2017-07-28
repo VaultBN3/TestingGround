@@ -15,7 +15,7 @@ AObjectiveController::AObjectiveController()
 	PrimaryActorTick.bCanEverTick = true;
 
 	NumObjectives = 0;
-	MaxObjectives = 1;
+	MaxObjectives = 5;
 	SpawnArea = 5000;
 
 
@@ -43,7 +43,7 @@ void AObjectiveController::Tick(float DeltaTime)
 
 void AObjectiveController::CreateObjectives() {
 
-
+	
 	if (NumObjectives < MaxObjectives) {
 		float z = FMath::FRandRange(-SpawnArea, SpawnArea);
 		float y = FMath::FRandRange(-SpawnArea, SpawnArea);

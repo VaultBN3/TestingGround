@@ -30,7 +30,9 @@ AObjective::AObjective()
 	//mesh->AttachParent = RootComponent;
 	//mesh->SetMaterial(0, Material_Blue.Object);
 	mesh->SetMaterial(0, DynMat);
-	//mesh->SetSimulatePhysics(true);
+	mesh->SetSimulatePhysics(true);
+	mesh->SetEnableGravity(false);
+	//mesh->SetCollisionProfileName(TEXT("BlockAll"));
 
 	//mesh->BodyInstance.bLockXRotation = true;
 	//mesh->BodyInstance.bLockYRotation = true;
