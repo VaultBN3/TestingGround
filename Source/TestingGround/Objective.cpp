@@ -11,9 +11,9 @@ AObjective::AObjective()
 	PrimaryActorTick.bCanEverTick = true;
 	mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MESH"));
 	//static ConstructorHelpers::FObjectFinder<UStaticMesh>StaticMesh(TEXT("/Game/StarterContent/Props/MaterialSphere.MaterialSphere")); 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh>StaticMesh(TEXT("/Game/Geometry/Meshes/1M_Cube_Chamfer.1M_Cube_Chamfer"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh>StaticMesh(TEXT("/Game/StarterContent/Props/MaterialSphere.MaterialSphere"));
 	static ConstructorHelpers::FObjectFinder <UMaterialInterface>Material_Blue(TEXT("/Game/TopDownBP/Blueprints/EmissiveMat.EmissiveMat"));
-
+	
 
 	UMaterialInstanceDynamic* DynMat = UMaterialInstanceDynamic::Create(Material_Blue.Object, NULL);
 	float bound = 10.0f;
@@ -32,16 +32,12 @@ AObjective::AObjective()
 	mesh->SetMaterial(0, DynMat);
 	mesh->SetSimulatePhysics(true);
 	mesh->SetEnableGravity(false);
-	mesh->BodyInstance.bLockYRotation = true;
-	mesh->BodyInstance.bLockXRotation = true;
-	mesh->BodyInstance.bLockZRotation = true;
-	mesh->BodyInstance.SetDOFLock(EDOFMode::SixDOF);
+	//mesh->BodyInstance.bLockYRotation = true;
+	//mesh->BodyInstance.bLockXRotation = true;
+	//mesh->BodyInstance.bLockZRotation = true;
+	//mesh->BodyInstance.SetDOFLock(EDOFMode::SixDOF);
 
-	mesh->GetBodyInstance()->bLockYRotation = true;
-	mesh->GetBodyInstance()->bLockXRotation = true;
-	mesh->GetBodyInstance()->bLockZRotation = true;
-	mesh->GetBodyInstance()->SetDOFLock(EDOFMode::SixDOF);
-	//mesh->SetCollisionProfileName(TEXT("BlockAll"));
+	
 
 	//mesh->BodyInstance.bLockXRotation = true;
 	//mesh->BodyInstance.bLockYRotation = true;
@@ -55,7 +51,23 @@ AObjective::AObjective()
 void AObjective::BeginPlay()
 {
 	Super::BeginPlay();
+	mesh->GetBodyInstance()->bLockYRotation = true;
+	mesh->GetBodyInstance()->bLockXRotation = true;
+	mesh->GetBodyInstance()->bLockZRotation = true;
+	mesh->GetBodyInstance()->bLockRotation = true;
+	mesh->GetBodyInstance()->bLockTranslation = true;
+	mesh->GetBodyInstance()->bLockXTranslation = true;
+	mesh->GetBodyInstance()->bLockYTranslation = true;
+	mesh->GetBodyInstance()->bLockZTranslation = true;
+
+	mesh->GetBodyInstance()->SetDOFLock(EDOFMode::SixDOF);
+	//mesh->SetCollisionProfileName(TEXT("BlockAll"));
+	mesh->BodyInstance.SetCollisionProfileName("TestObjectiveChannel");
 	
+
+
+
+
 }
 
 // Called every frame

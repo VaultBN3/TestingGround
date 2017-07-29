@@ -41,7 +41,7 @@ void ATestAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	//MoveAI();
-	if (FMath::RandRange(0, 10000) < 100) {
+	if (FMath::RandRange(0, 10000) < 0) {
 		float z = FMath::FRandRange(-ContainerSize, ContainerSize);
 		float y = FMath::FRandRange(-ContainerSize, ContainerSize);
 		float x = FMath::FRandRange(-ContainerSize, ContainerSize);
@@ -50,7 +50,7 @@ void ATestAIController::Tick(float DeltaTime)
 
 	}
 
-	if (FMath::RandRange(0, 10000) < 0) {
+	if (FMath::RandRange(0, 10000) < 100) {
 
 	
 		for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr)

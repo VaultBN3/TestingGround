@@ -31,6 +31,7 @@ public:
 	float neighbourDistance;
 	float speedUpper;
 	float speedLower;
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* mesh;
