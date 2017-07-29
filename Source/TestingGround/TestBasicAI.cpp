@@ -48,7 +48,7 @@ ATestBasicAI::ATestBasicAI()
 	//mesh->BodyInstance.bLockYRotation = true;
 
 	mesh->SetEnableGravity(false);
-	mesh->OnComponentHit.AddDynamic(this, &ATestBasicAI::OnHit);
+	
 	
 
 	//mesh->OnComponentHit.Add(this, &ATestBasicAI::OnHit);
@@ -81,6 +81,7 @@ void ATestBasicAI::BeginPlay()
 
 	
 	mesh->BodyInstance.SetCollisionProfileName("TestAIChannel");
+	mesh->OnComponentHit.AddDynamic(this, &ATestBasicAI::OnHit);
 
 	speed = FMath::FRandRange(speedLower, speedUpper);
 	//100 to 300 before
@@ -155,11 +156,7 @@ void ATestBasicAI::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, 
 	{
 
 	
-		//mesh->IgnoreActorWhenMoving(OtherActor, true);
-		//HitComponent->MoveIgnoreActors(OtherActor);
-		//TArray<AActor*> ActorToIgnore;
-		//ActorToIgnore.Add(OtherActor);
-		//HitComponent->MoveIgnoreActors = ActorToIgnore;
+		this->SetActorLocation(this->GetActorLocation() + ((this->GetActorForwardVector() * speed *-10) ), false);
 		
 	}	
 
