@@ -39,7 +39,7 @@ ATestBasicAI::ATestBasicAI()
 	//mesh->SetMaterial(0, Material_Blue.Object);
 	mesh->SetMaterial(0, DynMat); 
 	
-	mesh->SetSimulatePhysics(true);
+	//mesh->SetSimulatePhysics(true);
 	//mesh->SetCollisionEnabled(TEXT("BlockAll"));
 	//mesh->SetCollisionProfileName(TEXT("OverlapAll"));
 	
@@ -65,8 +65,8 @@ void ATestBasicAI::BeginPlay()
 	//speedUpper = 1500.0f;
 	//speedLower = 2500.0f;
 
-	speedUpper = 50.0f;
-	speedLower = 100.0f;
+	speedUpper = 1450.0f;
+	speedLower = 1550.0f;
 
 	
 
@@ -84,12 +84,12 @@ void ATestBasicAI::Tick(float DeltaTime)
 	bool turning = false;
 
 
-	for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
+//	for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
 
 	
 
 
-	}
+//	}
 
 
 
@@ -114,9 +114,15 @@ void ATestBasicAI::Tick(float DeltaTime)
 
 
 	}
+	FVector goalPos(0, 0, 0);
+	//for (TActorIterator<ATestAIController> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	//{
+	//	goalPos = ActorItr->GoalPosition;
+	//}
 
 	//this->SetActorRelativeLocation(FVector(0,0,speed*DeltaTime));
-	
+	//FVector goal = (goalPos - this->GetActorLocation());
+	//this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), goal.ToOrientationQuat(), rotationSpeed * DeltaTime));
 	this->SetActorLocation(this->GetActorLocation() + ((this->GetActorForwardVector() * speed) * DeltaTime), false);
 	
 	//https://wiki.unrealengine.com/Iterators:_Object_%26_Actor_Iterators,_Optional_Class_Scope_For_Faster_Search
@@ -142,7 +148,8 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 		FVector vavoid(0,0,0);
 
 		// gSpeed = speed does some crazy shit
-		float gSpeed = 0.1f;
+		//float gSpeed = 0.1f;
+		float gSpeed = speed;
 		float dist;
 
 		int groupSize = 0;
@@ -159,7 +166,7 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 					groupSize++;
 
 					// was 2.0f
-					if (dist <= 10.0f) 
+					if (dist <= 100.0f) 
 					{
 						vavoid = vavoid + (this->GetActorLocation() - ActorItr->GetActorLocation());
 					}
@@ -178,7 +185,7 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 			speed = gSpeed / groupSize;
 
 			FVector direction = (vcentre + (vavoid)) - this->GetActorLocation();
-			if (direction != FVector(0, 0, 0)) {
+			
 				if (FMath::RandRange(0, 10000) < 100) {
 					speed = speed * 10;
 					// needs to be on a timer.
@@ -186,7 +193,7 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 
 				this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), rotationSpeed * DeltaTime));
 				speed = FMath::FRandRange(speedUpper, speedLower);
-			}
+			
 		}
 	}
 

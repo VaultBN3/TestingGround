@@ -32,6 +32,15 @@ AObjective::AObjective()
 	mesh->SetMaterial(0, DynMat);
 	mesh->SetSimulatePhysics(true);
 	mesh->SetEnableGravity(false);
+	mesh->BodyInstance.bLockYRotation = true;
+	mesh->BodyInstance.bLockXRotation = true;
+	mesh->BodyInstance.bLockZRotation = true;
+	mesh->BodyInstance.SetDOFLock(EDOFMode::SixDOF);
+
+	mesh->GetBodyInstance()->bLockYRotation = true;
+	mesh->GetBodyInstance()->bLockXRotation = true;
+	mesh->GetBodyInstance()->bLockZRotation = true;
+	mesh->GetBodyInstance()->SetDOFLock(EDOFMode::SixDOF);
 	//mesh->SetCollisionProfileName(TEXT("BlockAll"));
 
 	//mesh->BodyInstance.bLockXRotation = true;
