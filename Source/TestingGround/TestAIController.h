@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include <string>
 #include <vector>
+#include <utility>
 #include "TestBasicAI.h"
 #include "TestAIController.generated.h"
 
@@ -31,7 +33,7 @@ public:
 	int AICounter;
 	int MaxAI;
 	int ContainerSize;
-	void GetNewGoal();
+	std::pair<FVector, std::string> GetNewGoal();
 	void RegisterGroup(std::vector<std::string> groupMembers);
 	std::vector<ATestBasicAI*> bots;
 	FVector GoalPosition;

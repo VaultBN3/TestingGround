@@ -5,6 +5,7 @@
 #include "TestAIController.h"
 #include "Objective.h"
 #include <vector>
+#include <utility> 
 
 using namespace std;
 
@@ -14,9 +15,9 @@ using namespace std;
 // Sets default values
 ATestBasicAI::ATestBasicAI()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 	mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MESH"));
 	//static ConstructorHelpers::FObjectFinder<UStaticMesh>StaticMesh(TEXT("/Game/StarterContent/Props/MaterialSphere.MaterialSphere")); 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>StaticMesh(TEXT("/Game/Geometry/Meshes/1M_Cube_Chamfer.1M_Cube_Chamfer"));
@@ -26,7 +27,7 @@ ATestBasicAI::ATestBasicAI()
 	UMaterialInstanceDynamic* DynMat = UMaterialInstanceDynamic::Create(Material_Blue.Object, NULL);
 	float bound = 10.0f;
 
-	FLinearColor Red(FMath::FRandRange(0,bound), FMath::FRandRange(0, bound), FMath::FRandRange(0, bound), FMath::FRandRange(0, bound));
+	FLinearColor Red(FMath::FRandRange(0, bound), FMath::FRandRange(0, bound), FMath::FRandRange(0, bound), FMath::FRandRange(0, bound));
 	FLinearColor Green(FMath::FRandRange(0, bound), FMath::FRandRange(0, bound), FMath::FRandRange(0, bound), FMath::FRandRange(0, bound));
 	FLinearColor InterpedColor = FMath::Lerp(Red, Green, FMath::FRandRange(0, bound));
 	DynMat->SetVectorParameterValue(FName("colour"), InterpedColor);
@@ -37,19 +38,19 @@ ATestBasicAI::ATestBasicAI()
 	mesh->SetStaticMesh(StaticMesh.Object);
 	//mesh->AttachParent = RootComponent;
 	//mesh->SetMaterial(0, Material_Blue.Object);
-	mesh->SetMaterial(0, DynMat); 
-	
+	mesh->SetMaterial(0, DynMat);
+
 	mesh->SetSimulatePhysics(false);
 	//mesh->SetCollisionEnabled(TEXT("BlockAll"));
 	//mesh->SetCollisionProfileName(TEXT("OverlapAll"));
-	
+
 
 	//mesh->BodyInstance.bLockXRotation = true;
 	//mesh->BodyInstance.bLockYRotation = true;
 
 	mesh->SetEnableGravity(false);
-	
-	
+
+
 
 	//mesh->OnComponentHit.Add(this, &ATestBasicAI::OnHit);
 
@@ -58,7 +59,7 @@ ATestBasicAI::ATestBasicAI()
 	RootComponent = mesh;
 
 
-	 //speed = FMath::FRandRange(2.0f, 5.0f);
+	//speed = FMath::FRandRange(2.0f, 5.0f);
 
 }
 
@@ -69,22 +70,27 @@ void ATestBasicAI::BeginPlay()
 
 	speedUpper = 400.0f;
 	speedLower = 800.0f;
-	
+
 	mesh->bGenerateOverlapEvents = true;
 
 	turning = false;
 
-	
+
 	mesh->BodyInstance.SetCollisionProfileName("TestAIChannel");
 	//mesh->OnComponentHit.AddDynamic(this, &ATestBasicAI::OnHit);
 	mesh->OnComponentBeginOverlap.AddDynamic(this, &ATestBasicAI::OverlapBegin);
 	mesh->OnComponentEndOverlap.AddDynamic(this, &ATestBasicAI::OverlapEnd);
 
-	
+
 	speed = FMath::FRandRange(speedLower, speedUpper);
 
 	rotationSpeed = 4.0f;
 	neighbourDistance = 500.0f;
+	
+
+	hasGoal = false;
+	currentGoal = make_pair(FVector(0, 0, 0), "Initial_goal");
+
 	//neighbourDistance = 10000.0f;
 
 	//mesh->SetCollisionProfileName(TEXT("BlockAll"));
@@ -95,23 +101,25 @@ void ATestBasicAI::BeginPlay()
 void ATestBasicAI::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
 
 
-	//if (this->GetActorLocation().Size() >= 10000) {
-	//	turning = true;
-//	}
+
+	if (this->GetActorLocation().Size() >= 10000) {
+		FVector direction = FVector(0, 0, 0) - this->GetActorLocation();
+		this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), 1000.0f));
+		speed = FMath::FRandRange(speedLower, speedUpper);
+	}
 //	else {
 //		turning = false;
 //	}
-	
+
 	if (turning) {
 
 		///FVector direction = FVector(0, 0, 0) - this->GetActorLocation();
 		GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Turning");
-		
+
 		FVector direction = this->GetActorLocation()*-1;
-		this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(),1000.0f));
+		this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), 1000.0f));
 		speed = FMath::FRandRange(speedLower, speedUpper);
 
 	}
@@ -149,8 +157,16 @@ void ATestBasicAI::Tick(float DeltaTime)
 	}
 
 	this->SetActorLocation(this->GetActorLocation() + ((this->GetActorForwardVector() * speed) * DeltaTime), false);
-	
+
 	//https://wiki.unrealengine.com/Iterators:_Object_%26_Actor_Iterators,_Optional_Class_Scope_For_Faster_Search
+
+}
+
+void ATestBasicAI::SetGoal(std::pair<FVector, std::string> newGoal) {
+
+	currentGoal = newGoal;
+
+	
 
 }
 
@@ -160,20 +176,20 @@ void ATestBasicAI::GetController() {
 }
 
 
-void ATestBasicAI::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit){
+void ATestBasicAI::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit) {
 	if ((OtherActor != NULL) && OtherActor->IsA(AObjective::StaticClass()))
 	{
 		//turning = false;
 		GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Hit");
 
-	
-	}	
+
+	}
 
 }
 
 
 void ATestBasicAI::OverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
-	
+
 	//turning = true;
 	//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Overlapping");
 
@@ -194,63 +210,82 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 	vector<ATestBasicAI*> bots(50);
 	FVector goalPos;
 
-	for (TActorIterator<ATestAIController> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-	{
-		// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
-		bots = ActorItr->bots;
-		goalPos = ActorItr->GoalPosition;
 
-		FVector vcentre(0,0,0);
-		FVector vavoid(0,0,0);
+//	if (!hasGoal) {
 
-		// gSpeed = speed does some crazy shit
-		//float gSpeed = 0.1f;
-		float gSpeed = speed;
-		float dist;
-
-		int groupSize = 0;
-
-		for (TActorIterator<ATestBasicAI> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		for (TActorIterator<ATestAIController> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
-			if (ActorItr->GetName() != this->GetName()) 
-			{
-				dist = (this->GetActorLocation() - ActorItr->GetActorLocation()).Size();
-			
-				if (dist <= neighbourDistance) 
-				{
-					vcentre += ActorItr->GetActorLocation();
-					groupSize++;
 
-					// was 2.0f
-					// is this bound by size or speeed ? 
-					if (dist <= 800.0f) 
-					{
-						vavoid = vavoid + (this->GetActorLocation() - ActorItr->GetActorLocation());
-					}
 
-					gSpeed = gSpeed + ActorItr->speed;
 
-				}
-			}
+			// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
+			currentGoal = ActorItr->GetNewGoal();
+			goalPos = ActorItr->GoalPosition;
+
+			hasGoal = true;
+
 		}
 
+//	}
+	
 
-		if (groupSize > 0) {
 
-			vcentre = vcentre / groupSize + (goalPos - this->GetActorLocation());
-			speed = gSpeed / groupSize;
 
-			FVector direction = (vcentre + (vavoid)) - this->GetActorLocation();
-			
-				if (FMath::RandRange(0, 10000) < 100) {
-					speed = speed * 10;
-					// needs to be on a timer.
+
+	FVector vcentre(0, 0, 0);
+	FVector vavoid(0, 0, 0);
+
+	// gSpeed = speed does some crazy shit
+	//float gSpeed = 0.1f;
+	float gSpeed = speed;
+	float dist;
+
+	int groupSize = 0;
+
+	for (TActorIterator<ATestBasicAI> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		if (ActorItr->GetName() != this->GetName())
+		{
+			dist = (this->GetActorLocation() - ActorItr->GetActorLocation()).Size();
+
+			if (dist <= neighbourDistance)
+			{
+				vcentre += ActorItr->GetActorLocation();
+				groupSize++;
+
+				// was 2.0f
+				// is this bound by size or speeed ? 
+				if (dist <= 800.0f)
+				{
+					vavoid = vavoid + (this->GetActorLocation() - ActorItr->GetActorLocation());
 				}
 
-				this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), rotationSpeed * DeltaTime));
-				speed = FMath::FRandRange(speedUpper, speedLower);
-			
+				gSpeed = gSpeed + ActorItr->speed;
+
+			}
 		}
 	}
 
+
+	if (groupSize > 0) {
+
+		vcentre = vcentre / groupSize + (goalPos - this->GetActorLocation());
+		speed = gSpeed / groupSize;
+
+		FVector direction = (vcentre + (vavoid)) - this->GetActorLocation();
+
+		if (FMath::RandRange(0, 10000) < 100) {
+			speed = speed * 10;
+			// needs to be on a timer.
+		}
+
+		this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), rotationSpeed * DeltaTime));
+		speed = FMath::FRandRange(speedUpper, speedLower);
+
+	}
 }
+
+
+
+
+

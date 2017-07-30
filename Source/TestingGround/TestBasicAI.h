@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include <string>
+#include <utility>
 #include "TestBasicAI.generated.h"
 
 UCLASS()
@@ -33,6 +35,9 @@ public:
 	float speedLower;
 	bool turning;
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+	bool hasGoal;
+	std::pair<FVector, std::string> currentGoal;
+	void SetGoal(std::pair<FVector, std::string> newGoal);
 
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* mesh;

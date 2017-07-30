@@ -5,7 +5,9 @@
 #include "TestBasicAI.h"
 #include "Objective.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include <string>
 #include <vector>
+#include <utility> 
 
 using namespace std;
 
@@ -46,17 +48,17 @@ void ATestAIController::BeginPlay()
 //				min group size, 
 //				max group size
 
+// This will take a group size;
+pair<FVector, string> ATestAIController::GetNewGoal() {
 
-void ATestAIController::GetNewGoal() {
-
-	if (FMath::RandRange(0, 10000) < 200) {
+	FVector newGoalPos(0, 0, 0);
 		if (FMath::RandRange(0, 1) < 1) {
-			GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Random Loc");
+		//	GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Random Loc");
 			float z = FMath::FRandRange(-ContainerSize, ContainerSize);
 			float y = FMath::FRandRange(-ContainerSize, ContainerSize);
 			float x = FMath::FRandRange(-ContainerSize, ContainerSize);
 			FVector NewGoalPosition(x, y, z);
-			GoalPosition = NewGoalPosition;
+			newGoalPos = NewGoalPosition;
 		}
 		else {
 			int size = 0;
@@ -68,12 +70,12 @@ void ATestAIController::GetNewGoal() {
 			}
 			int objectiveSelected = FMath::RandRange(0, size);
 			FString IntAsString = FString::FromInt(objectiveSelected);
-			GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Target Objective " + IntAsString);
+			//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Target Objective " + IntAsString);
 			int count = 0;
 			for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 			{
 				if (count == objectiveSelected) {
-					GoalPosition = ActorItr->GetActorLocation();
+					newGoalPos = ActorItr->GetActorLocation();
 				}
 				count += 1;
 
@@ -81,7 +83,10 @@ void ATestAIController::GetNewGoal() {
 			}
 
 		}
-	}
+
+		pair<FVector, string> objective = make_pair(newGoalPos, "WAIT");
+		return objective;
+	
 
 
 
@@ -94,7 +99,7 @@ void ATestAIController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, "Test");
 	//MoveAI();
-	if (FMath::RandRange(0, 10000) < 200) {
+	if (FMath::RandRange(0, 10000) < 50) {
 		if (FMath::RandRange(0, 1) < 1) {
 			GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Random Loc");
 			float z = FMath::FRandRange(-ContainerSize, ContainerSize);
