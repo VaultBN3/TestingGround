@@ -16,7 +16,7 @@ AObjectiveController::AObjectiveController()
 
 	NumObjectives = 0;
 	MaxObjectives = 5;
-	SpawnArea = 5000;
+	SpawnArea = 10000;
 
 
 	vector<AObjective*> temp(MaxObjectives);

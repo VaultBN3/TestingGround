@@ -84,7 +84,8 @@ void ATestBasicAI::BeginPlay()
 	speed = FMath::FRandRange(speedLower, speedUpper);
 
 	rotationSpeed = 4.0f;
-	neighbourDistance = 10000.0f;
+	neighbourDistance = 500.0f;
+	//neighbourDistance = 10000.0f;
 
 	//mesh->SetCollisionProfileName(TEXT("BlockAll"));
 		//1000.0f for bit cluster
@@ -133,7 +134,7 @@ void ATestBasicAI::Tick(float DeltaTime)
 		float dist = (this->GetActorLocation() - ActorItr->GetActorLocation()).Size();
 		if (dist <= 700.0f) {
 
-			GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Avoiding objective");
+			//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Avoiding objective");
 
 			FVector direction = this->GetActorLocation() - ActorItr->GetActorLocation();
 			this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), rotationSpeed * DeltaTime));
@@ -221,6 +222,7 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 					groupSize++;
 
 					// was 2.0f
+					// is this bound by size or speeed ? 
 					if (dist <= 800.0f) 
 					{
 						vavoid = vavoid + (this->GetActorLocation() - ActorItr->GetActorLocation());

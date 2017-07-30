@@ -17,10 +17,11 @@ ATestAIController::ATestAIController()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	AICounter = 0;
-	MaxAI = 400;
+	MaxAI = 700;
 	//440
 	vector<ATestBasicAI*> botVector(MaxAI);
 	bots = botVector;
+	//ContainerSize = 10000;
 	ContainerSize = 5000;
 
 
@@ -37,14 +38,20 @@ void ATestAIController::BeginPlay()
 	
 }
 
-// Called every frame
-void ATestAIController::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, "Test");
-	//MoveAI();
-	if (FMath::RandRange(0, 10000) < 30) {
-		if (FMath::RandRange(0, 1) < 0) {
+
+/// This needs to return a (FVector, completeionCondition)
+// Needs to keep track of objective, AI count;
+// This will allow the controller more tactical decisions regarding the number of AI, group sizes etc. 
+// New params, Group_policy-> make new, fill to max, mixture
+//				min group size, 
+//				max group size
+
+
+void ATestAIController::GetNewGoal() {
+
+	if (FMath::RandRange(0, 10000) < 200) {
+		if (FMath::RandRange(0, 1) < 1) {
+			GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Random Loc");
 			float z = FMath::FRandRange(-ContainerSize, ContainerSize);
 			float y = FMath::FRandRange(-ContainerSize, ContainerSize);
 			float x = FMath::FRandRange(-ContainerSize, ContainerSize);
@@ -55,23 +62,68 @@ void ATestAIController::Tick(float DeltaTime)
 			int size = 0;
 			for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 			{
+
 				size += 1;
-				
+
 			}
 			int objectiveSelected = FMath::RandRange(0, size);
+			FString IntAsString = FString::FromInt(objectiveSelected);
+			GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Target Objective " + IntAsString);
 			int count = 0;
 			for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 			{
 				if (count == objectiveSelected) {
 					GoalPosition = ActorItr->GetActorLocation();
 				}
+				count += 1;
 
 
 			}
 
+		}
+	}
 
 
 
+}
+ 
+
+// Called every frame
+void ATestAIController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, "Test");
+	//MoveAI();
+	if (FMath::RandRange(0, 10000) < 200) {
+		if (FMath::RandRange(0, 1) < 1) {
+			GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Random Loc");
+			float z = FMath::FRandRange(-ContainerSize, ContainerSize);
+			float y = FMath::FRandRange(-ContainerSize, ContainerSize);
+			float x = FMath::FRandRange(-ContainerSize, ContainerSize);
+			FVector NewGoalPosition(x, y, z);
+			GoalPosition = NewGoalPosition;
+		}
+		else {
+			int size = 0;
+			for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+			{
+				
+				size += 1;
+				
+			}
+			int objectiveSelected = FMath::RandRange(0, size);
+			FString IntAsString = FString::FromInt(objectiveSelected);
+			GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Target Objective " + IntAsString);
+			int count = 0;
+			for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+			{
+				if (count == objectiveSelected) {
+					GoalPosition = ActorItr->GetActorLocation();
+				}
+				count += 1;
+
+
+			}
 
 		}
 	}

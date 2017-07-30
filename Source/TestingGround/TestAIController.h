@@ -31,6 +31,8 @@ public:
 	int AICounter;
 	int MaxAI;
 	int ContainerSize;
+	void GetNewGoal();
+	void RegisterGroup(std::vector<std::string> groupMembers);
 	std::vector<ATestBasicAI*> bots;
 	FVector GoalPosition;
 	std::vector<ATestBasicAI*> ReturnBots();
