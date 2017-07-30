@@ -36,8 +36,9 @@ public:
 	bool turning;
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 	bool hasGoal;
-	std::pair<FVector, std::string> currentGoal;
-	void SetGoal(std::pair<FVector, std::string> newGoal);
+	std::pair<FVector, int> currentGoal;
+	void SetGoal(std::pair<FVector, int> newGoal);
+	int maxGroupSize;
 
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* mesh;

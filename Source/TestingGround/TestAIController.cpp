@@ -25,6 +25,7 @@ ATestAIController::ATestAIController()
 	bots = botVector;
 	//ContainerSize = 10000;
 	ContainerSize = 5000;
+	GoalIndex = 0;
 
 
 	FVector Location(0.0f, 0.0f,2000.0f);
@@ -49,7 +50,10 @@ void ATestAIController::BeginPlay()
 //				max group size
 
 // This will take a group size;
-pair<FVector, string> ATestAIController::GetNewGoal() {
+
+// Brain can control speed of group in some way, maximum speed of all AI = something, speeed will effect other stats, health, damage etc. 
+// Brain will assign random avoidance measur to allow for more elaborate formations
+pair<FVector, int> ATestAIController::GetNewGoal() {
 
 	FVector newGoalPos(0, 0, 0);
 		if (FMath::RandRange(0, 1) < 1) {
@@ -84,9 +88,31 @@ pair<FVector, string> ATestAIController::GetNewGoal() {
 
 		}
 
-		pair<FVector, string> objective = make_pair(newGoalPos, "WAIT");
+		pair<FVector, int> objective = make_pair(newGoalPos, GoalIndex);
+		instructionMap[GoalIndex] = "EXECUTING";
+		
+		GoalIndex += 1;
 		return objective;
 	
+
+
+
+}
+
+void ATestAIController::CancelSomeGoals() {
+
+	for (std::map<int, string>::iterator iter = instructionMap.begin(); iter != instructionMap.end(); ++iter)
+	{	
+		if (FMath::RandRange(0, 10000) < 50) {
+			int k = iter->first;
+			instructionMap[k] = "CANCELLED";
+
+
+		}
+
+
+	}
+
 
 
 
@@ -97,6 +123,8 @@ pair<FVector, string> ATestAIController::GetNewGoal() {
 void ATestAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	CancelSomeGoals();
+
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, "Test");
 	//MoveAI();
 	if (FMath::RandRange(0, 10000) < 50) {

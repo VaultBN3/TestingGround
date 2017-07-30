@@ -85,11 +85,12 @@ void ATestBasicAI::BeginPlay()
 	speed = FMath::FRandRange(speedLower, speedUpper);
 
 	rotationSpeed = 4.0f;
-	neighbourDistance = 500.0f;
+	neighbourDistance = 20000.0f;
 	
 
 	hasGoal = false;
-	currentGoal = make_pair(FVector(0, 0, 0), "Initial_goal");
+	currentGoal = make_pair(FVector(0, 0, 0), -1);
+	maxGroupSize = 50;
 
 	//neighbourDistance = 10000.0f;
 
@@ -162,7 +163,7 @@ void ATestBasicAI::Tick(float DeltaTime)
 
 }
 
-void ATestBasicAI::SetGoal(std::pair<FVector, std::string> newGoal) {
+void ATestBasicAI::SetGoal(std::pair<FVector, int> newGoal) {
 
 	currentGoal = newGoal;
 
@@ -211,7 +212,10 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 	FVector goalPos;
 
 
-//	if (!hasGoal) {
+
+
+
+// if (!hasGoal) {
 
 		for (TActorIterator<ATestAIController> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
@@ -226,8 +230,12 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 
 		}
 
-//	}
+ //}
+
+
 	
+	// Will need one loop for avoidance vector
+	// will need another loop for centre and average speed. 
 
 
 
@@ -255,6 +263,7 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 
 				// was 2.0f
 				// is this bound by size or speeed ? 
+				// creating a lower ovidance allows them to swim in cirlces more.
 				if (dist <= 800.0f)
 				{
 					vavoid = vavoid + (this->GetActorLocation() - ActorItr->GetActorLocation());
@@ -266,6 +275,7 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 		}
 	}
 
+	// Look for eligible AI- if find not in group
 
 	if (groupSize > 0) {
 

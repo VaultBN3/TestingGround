@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <map>
 #include "TestBasicAI.h"
 #include "TestAIController.generated.h"
 
@@ -33,12 +34,14 @@ public:
 	int AICounter;
 	int MaxAI;
 	int ContainerSize;
-	std::pair<FVector, std::string> GetNewGoal();
+	int GoalIndex;
+	std::pair<FVector, int> GetNewGoal();
 	void RegisterGroup(std::vector<std::string> groupMembers);
 	std::vector<ATestBasicAI*> bots;
+	std::map<int, std::string> instructionMap;
 	FVector GoalPosition;
 	std::vector<ATestBasicAI*> ReturnBots();
-	
+	void CancelSomeGoals();
 
 	
 
