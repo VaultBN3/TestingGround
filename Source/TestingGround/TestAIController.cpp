@@ -17,7 +17,7 @@ ATestAIController::ATestAIController()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	AICounter = 0;
-	MaxAI = 200;
+	MaxAI = 400;
 	vector<ATestBasicAI*> botVector(MaxAI);
 	bots = botVector;
 	ContainerSize = 5000;
@@ -41,29 +41,29 @@ void ATestAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	//MoveAI();
-	if (FMath::RandRange(0, 10000) < 0) {
-		float z = FMath::FRandRange(-ContainerSize, ContainerSize);
-		float y = FMath::FRandRange(-ContainerSize, ContainerSize);
-		float x = FMath::FRandRange(-ContainerSize, ContainerSize);
-		FVector NewGoalPosition(x, y, z);
-		GoalPosition = NewGoalPosition;
+	if (FMath::RandRange(0, 10000) < 30) {
+		if (FMath::RandRange(0, 1) < 2) {
+			float z = FMath::FRandRange(-ContainerSize, ContainerSize);
+			float y = FMath::FRandRange(-ContainerSize, ContainerSize);
+			float x = FMath::FRandRange(-ContainerSize, ContainerSize);
+			FVector NewGoalPosition(x, y, z);
+			GoalPosition = NewGoalPosition;
+		}
+		else {
 
-	}
+			for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+			{
 
-	if (FMath::RandRange(0, 10000) < 100) {
+				GoalPosition = ActorItr->GetActorLocation();
 
-	
-		for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-		{
 
-			GoalPosition = ActorItr->GetActorLocation();
+			}
+
 
 
 		}
-
-
 	}
-	
+
 
 }
 

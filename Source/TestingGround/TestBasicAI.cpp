@@ -66,27 +66,18 @@ ATestBasicAI::ATestBasicAI()
 void ATestBasicAI::BeginPlay()
 {
 	Super::BeginPlay();
-	//speedUpper = 1500.0f;
-	//speedLower = 2500.0f;
 
-
-	//speedUpper = 1450.0f;
-	//speedLower = 1550.0f;
-
-
-
-
-	speedUpper = 1400.0f;
-	speedLower = 1800.0f;
+	speedUpper = 400.0f;
+	speedLower = 800.0f;
 
 	
 	mesh->BodyInstance.SetCollisionProfileName("TestAIChannel");
 	mesh->OnComponentHit.AddDynamic(this, &ATestBasicAI::OnHit);
 
 	speed = FMath::FRandRange(speedLower, speedUpper);
-	//100 to 300 before
+
 	rotationSpeed = 4.0f;
-	neighbourDistance = 1000.0f;
+	neighbourDistance = 10000.0f;
 
 	//mesh->SetCollisionProfileName(TEXT("BlockAll"));
 		//1000.0f for bit cluster
@@ -97,15 +88,6 @@ void ATestBasicAI::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	bool turning = false;
-
-
-//	for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
-
-	
-
-
-//	}
-
 
 
 	if (this->GetActorLocation().Size() >= 10000) {
@@ -127,18 +109,9 @@ void ATestBasicAI::Tick(float DeltaTime)
 			ApplyRules(DeltaTime);
 		}
 
-
 	}
 	FVector goalPos(0, 0, 0);
-	//for (TActorIterator<ATestAIController> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-	//{
-	//	goalPos = ActorItr->GoalPosition;
-	//}
 
-	//this->SetActorRelativeLocation(FVector(0,0,speed*DeltaTime));
-	//FVector goal = (goalPos - this->GetActorLocation());
-	//this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), goal.ToOrientationQuat(), rotationSpeed * DeltaTime));
-	
 	this->SetActorLocation(this->GetActorLocation() + ((this->GetActorForwardVector() * speed) * DeltaTime), false);
 	
 	//https://wiki.unrealengine.com/Iterators:_Object_%26_Actor_Iterators,_Optional_Class_Scope_For_Faster_Search
@@ -154,20 +127,12 @@ void ATestBasicAI::GetController() {
 void ATestBasicAI::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit){
 	if ((OtherActor != NULL) && OtherActor->IsA(AObjective::StaticClass()))
 	{
-
 	
-		this->SetActorLocation(this->GetActorLocation() + ((this->GetActorForwardVector() * speed *-10) ), false);
-		
+		//this->SetActorLocation(this->GetActorLocation() + ((this->GetActorForwardVector() * speed *-10) ), false);
+	
 	}	
 
-
-
-
-
-
 }
-
-
 
 void ATestBasicAI::ApplyRules(float DeltaTime) {
 	// Get Other Bot locations
@@ -202,7 +167,7 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 					groupSize++;
 
 					// was 2.0f
-					if (dist <= 100.0f) 
+					if (dist <= 800.0f) 
 					{
 						vavoid = vavoid + (this->GetActorLocation() - ActorItr->GetActorLocation());
 					}
@@ -213,9 +178,8 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 			}
 		}
 
-		if (groupSize > 0) {
 
-	
+		if (groupSize > 0) {
 
 			vcentre = vcentre / groupSize + (goalPos - this->GetActorLocation());
 			speed = gSpeed / groupSize;
