@@ -18,6 +18,7 @@ ATestAIController::ATestAIController()
 	PrimaryActorTick.bCanEverTick = true;
 	AICounter = 0;
 	MaxAI = 400;
+	//440
 	vector<ATestBasicAI*> botVector(MaxAI);
 	bots = botVector;
 	ContainerSize = 5000;
@@ -40,9 +41,10 @@ void ATestAIController::BeginPlay()
 void ATestAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, "Test");
 	//MoveAI();
 	if (FMath::RandRange(0, 10000) < 30) {
-		if (FMath::RandRange(0, 1) < 2) {
+		if (FMath::RandRange(0, 1) < 0) {
 			float z = FMath::FRandRange(-ContainerSize, ContainerSize);
 			float y = FMath::FRandRange(-ContainerSize, ContainerSize);
 			float x = FMath::FRandRange(-ContainerSize, ContainerSize);
@@ -50,14 +52,24 @@ void ATestAIController::Tick(float DeltaTime)
 			GoalPosition = NewGoalPosition;
 		}
 		else {
-
+			int size = 0;
 			for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 			{
-
-				GoalPosition = ActorItr->GetActorLocation();
+				size += 1;
+				
+			}
+			int objectiveSelected = FMath::RandRange(0, size);
+			int count = 0;
+			for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+			{
+				if (count == objectiveSelected) {
+					GoalPosition = ActorItr->GetActorLocation();
+				}
 
 
 			}
+
+
 
 
 

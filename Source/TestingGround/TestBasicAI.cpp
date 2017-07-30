@@ -39,7 +39,7 @@ ATestBasicAI::ATestBasicAI()
 	//mesh->SetMaterial(0, Material_Blue.Object);
 	mesh->SetMaterial(0, DynMat); 
 	
-	mesh->SetSimulatePhysics(true);
+	mesh->SetSimulatePhysics(false);
 	//mesh->SetCollisionEnabled(TEXT("BlockAll"));
 	//mesh->SetCollisionProfileName(TEXT("OverlapAll"));
 	
@@ -69,11 +69,18 @@ void ATestBasicAI::BeginPlay()
 
 	speedUpper = 400.0f;
 	speedLower = 800.0f;
+	
+	mesh->bGenerateOverlapEvents = true;
+
+	turning = false;
 
 	
 	mesh->BodyInstance.SetCollisionProfileName("TestAIChannel");
-	mesh->OnComponentHit.AddDynamic(this, &ATestBasicAI::OnHit);
+	//mesh->OnComponentHit.AddDynamic(this, &ATestBasicAI::OnHit);
+	mesh->OnComponentBeginOverlap.AddDynamic(this, &ATestBasicAI::OverlapBegin);
+	mesh->OnComponentEndOverlap.AddDynamic(this, &ATestBasicAI::OverlapEnd);
 
+	
 	speed = FMath::FRandRange(speedLower, speedUpper);
 
 	rotationSpeed = 4.0f;
@@ -87,23 +94,28 @@ void ATestBasicAI::BeginPlay()
 void ATestBasicAI::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	bool turning = false;
+	
 
 
-	if (this->GetActorLocation().Size() >= 10000) {
-		turning = true;
-	}
-	else {
-		turning = false;
-	}
+	//if (this->GetActorLocation().Size() >= 10000) {
+	//	turning = true;
+//	}
+//	else {
+//		turning = false;
+//	}
+	
 	if (turning) {
 
-		FVector direction = FVector(0, 0, 0) - this->GetActorLocation();
-		this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), rotationSpeed * DeltaTime));
+		///FVector direction = FVector(0, 0, 0) - this->GetActorLocation();
+		GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Turning");
+		
+		FVector direction = this->GetActorLocation()*-1;
+		this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(),1000.0f));
 		speed = FMath::FRandRange(speedLower, speedUpper);
 
 	}
 	else {
+		//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Not Turning");
 		// was 5
 		if (FMath::RandRange(0, 5) < 1) {
 			ApplyRules(DeltaTime);
@@ -111,6 +123,29 @@ void ATestBasicAI::Tick(float DeltaTime)
 
 	}
 	FVector goalPos(0, 0, 0);
+
+
+	for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
+
+
+		// Could this be replaced by some sort of proximity event? 
+
+		float dist = (this->GetActorLocation() - ActorItr->GetActorLocation()).Size();
+		if (dist <= 700.0f) {
+
+			GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Avoiding objective");
+
+			FVector direction = this->GetActorLocation() - ActorItr->GetActorLocation();
+			this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), rotationSpeed * DeltaTime));
+			speed = FMath::FRandRange(speedUpper, speedLower);
+
+
+
+		}
+
+
+
+	}
 
 	this->SetActorLocation(this->GetActorLocation() + ((this->GetActorForwardVector() * speed) * DeltaTime), false);
 	
@@ -127,12 +162,31 @@ void ATestBasicAI::GetController() {
 void ATestBasicAI::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit){
 	if ((OtherActor != NULL) && OtherActor->IsA(AObjective::StaticClass()))
 	{
-	
-		//this->SetActorLocation(this->GetActorLocation() + ((this->GetActorForwardVector() * speed *-10) ), false);
+		//turning = false;
+		GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Hit");
+
 	
 	}	
 
 }
+
+
+void ATestBasicAI::OverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
+	
+	//turning = true;
+	//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Overlapping");
+
+
+}
+void ATestBasicAI::OverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) {
+
+	//turning = false;
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, "Overlap ended");
+
+
+}
+
+
 
 void ATestBasicAI::ApplyRules(float DeltaTime) {
 	// Get Other Bot locations

@@ -4,7 +4,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Objective.h"
 #include "engine.h"
-
+#include <string> 
 #include <vector>
 using namespace std;
 
@@ -43,26 +43,29 @@ void AObjectiveController::Tick(float DeltaTime)
 
 void AObjectiveController::CreateObjectives() {
 
-	
-	if (NumObjectives < MaxObjectives) {
-		float z = FMath::FRandRange(-SpawnArea, SpawnArea);
-		float y = FMath::FRandRange(-SpawnArea, SpawnArea);
-		float x = FMath::FRandRange(-SpawnArea, SpawnArea);
-		FVector Location(x, y, z);
-		FRotator Rotation(0.0f, 0.0f, 0.0f);
-		
-		FActorSpawnParameters SpawnInfo;
+	int count = 0;
+	for (int i = 0; i < MaxObjectives; i++) {
+		if (NumObjectives < MaxObjectives) {
 
-	
-		//Location = myCharacter->GetActorLocation(); // Get's location of actor 
-		AObjective* obj = GetWorld()->SpawnActor<AObjective>(Location, Rotation, SpawnInfo);
+			GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Adding Objective");
+			float z = FMath::FRandRange(-SpawnArea, SpawnArea);
+			float y = FMath::FRandRange(-SpawnArea, SpawnArea);
+			float x = FMath::FRandRange(-SpawnArea, SpawnArea);
+			FVector Location(x, y, z);
+			FRotator Rotation(0.0f, 0.0f, 0.0f);
 
-		//botArray[AICounter] = newBot;
-		objectives[NumObjectives] = obj;
+			FActorSpawnParameters SpawnInfo;
 
-		NumObjectives += 1;
+
+			//Location = myCharacter->GetActorLocation(); // Get's location of actor 
+			AObjective* obj = GetWorld()->SpawnActor<AObjective>(Location, Rotation, SpawnInfo);
+
+			//botArray[AICounter] = newBot;
+			objectives[NumObjectives] = obj;
+			count += 1;
+			NumObjectives += 1;
+		}
 	}
-
 
 }
 

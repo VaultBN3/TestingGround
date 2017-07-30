@@ -63,6 +63,8 @@ void AObjective::BeginPlay()
 	mesh->GetBodyInstance()->SetDOFLock(EDOFMode::SixDOF);
 	//mesh->SetCollisionProfileName(TEXT("BlockAll"));
 	mesh->BodyInstance.SetCollisionProfileName("TestObjectiveChannel");
+
+	mesh->bGenerateOverlapEvents = true;
 	
 
 
