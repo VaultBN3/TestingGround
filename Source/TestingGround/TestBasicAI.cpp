@@ -4,7 +4,10 @@
 #include "engine.h"
 #include "TestAIController.h"
 #include "Objective.h"
+#include <string>
 #include <vector>
+#include <map>
+#include <tuple>
 #include <utility> 
 
 using namespace std;
@@ -59,6 +62,8 @@ ATestBasicAI::ATestBasicAI()
 	RootComponent = mesh;
 
 
+
+
 	//speed = FMath::FRandRange(2.0f, 5.0f);
 
 }
@@ -68,8 +73,30 @@ void ATestBasicAI::BeginPlay()
 {
 	Super::BeginPlay();
 
-	speedUpper = 400.0f;
-	speedLower = 800.0f;
+	for (TActorIterator<ATestAIController> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		
+		speedUpper = ActorItr->speedUpper;
+
+		speedLower = ActorItr->speedLower;
+		
+		maxGroupSize = ActorItr->maxGroupSize;
+		
+		minGroupSize = ActorItr->minGroupSize;
+		
+		rotationSpeed = ActorItr->rotationSpeed;
+		
+		neighbourDistance = ActorItr->neighbourDistance;
+
+		avoidanceDistance = ActorItr->avoidanceDistance;
+
+		outOfBoundsRange = ActorItr->outOfBoundsRange;
+
+
+	}
+
+	//speedUpper = 400.0f;
+	//speedLower = 800.0f;
 
 	mesh->bGenerateOverlapEvents = true;
 
@@ -84,18 +111,35 @@ void ATestBasicAI::BeginPlay()
 
 	speed = FMath::FRandRange(speedLower, speedUpper);
 
-	rotationSpeed = 4.0f;
-	neighbourDistance = 20000.0f;
-	
+	//rotationSpeed = 4.0f;
+	//neighbourDistance = 2000.0f;
+
 
 	hasGoal = false;
-	currentGoal = make_pair(FVector(0, 0, 0), -1);
-	maxGroupSize = 50;
+	hasGroup = false;
+	currentGoal = make_tuple(-1, FVector(0, 0, 0), -1, "");
+	//maxGroupSize = 50;
+	//minGroupSize = 10;
 
 	//neighbourDistance = 10000.0f;
 
 	//mesh->SetCollisionProfileName(TEXT("BlockAll"));
 		//1000.0f for bit cluster
+
+
+	//FString IntAsString = FString::SanitizeFloat(speedUpper);
+	//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Speed Upper " + IntAsString);
+	//IntAsString = FString::SanitizeFloat(speedLower);
+	//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Speed Lower " + IntAsString);
+	//IntAsString = FString::FromInt(maxGroupSize);
+	//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Max group " + IntAsString);
+	//IntAsString = FString::FromInt(minGroupSize);
+	//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Max group " + IntAsString);
+	//IntAsString = FString::SanitizeFloat(neighbourDistance);
+	//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Neighbour " + IntAsString);
+
+
+
 }
 
 // Called every frame
@@ -105,14 +149,14 @@ void ATestBasicAI::Tick(float DeltaTime)
 
 
 
-	if (this->GetActorLocation().Size() >= 10000) {
+	if (this->GetActorLocation().Size() >= outOfBoundsRange) {
 		FVector direction = FVector(0, 0, 0) - this->GetActorLocation();
 		this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), 1000.0f));
 		speed = FMath::FRandRange(speedLower, speedUpper);
 	}
-//	else {
-//		turning = false;
-//	}
+	//	else {
+	//		turning = false;
+	//	}
 
 	if (turning) {
 
@@ -163,11 +207,12 @@ void ATestBasicAI::Tick(float DeltaTime)
 
 }
 
-void ATestBasicAI::SetGoal(std::pair<FVector, int> newGoal) {
+void ATestBasicAI::SetGoal(tuple<int, FVector, int, string> newGoal) {
 
 	currentGoal = newGoal;
+	hasGoal = true;
 
-	
+
 
 }
 
@@ -215,30 +260,39 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 
 
 
-// if (!hasGoal) {
+	// if (!hasGoal) {
 
-		for (TActorIterator<ATestAIController> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-		{
-
-
-
-			// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
-			currentGoal = ActorItr->GetNewGoal();
-			goalPos = ActorItr->GoalPosition;
-
-			hasGoal = true;
-
-		}
-
- //}
-
-
-	
-	// Will need one loop for avoidance vector
-	// will need another loop for centre and average speed. 
+	vector<ATestBasicAI*> botVector;
+	for (TActorIterator<ATestAIController> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
 
 
 
+
+		// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
+		//currentGoal = ActorItr->GetNewGoal();
+		//goalPos = ActorItr->GoalPosition;
+		botVector = ActorItr->bots;
+		mergePolicey = ActorItr->mergePolicey;
+
+		//hasGoal = true;
+
+	}
+
+	//}
+
+
+
+	   // Will need one loop for avoidance vector
+	   // will need another loop for centre and average speed. 
+
+
+	FVector nogroupvcentre(0, 0, 0);
+
+	float nogroupgSpeed = speed;
+
+
+	int nogroupgroupSize = 0;
 
 	FVector vcentre(0, 0, 0);
 	FVector vavoid(0, 0, 0);
@@ -250,36 +304,41 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 
 	int groupSize = 0;
 
-	for (TActorIterator<ATestBasicAI> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-	{
-		if (ActorItr->GetName() != this->GetName())
+
+	// this will just set the avoidance vector 
+
+
+
+
+	// If the current AI has a group and therefore a goal do the following:
+	if (hasGroup) {
+		for (TActorIterator<ATestBasicAI> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
-			dist = (this->GetActorLocation() - ActorItr->GetActorLocation()).Size();
-
-			if (dist <= neighbourDistance)
+			if (ActorItr->GetName() != this->GetName())
 			{
-				vcentre += ActorItr->GetActorLocation();
-				groupSize++;
+				dist = (this->GetActorLocation() - ActorItr->GetActorLocation()).Size();
+				if (get<0>(currentGoal) == get<0>(ActorItr->currentGoal)) {
+			
+					vcentre += ActorItr->GetActorLocation();
+					gSpeed = gSpeed + ActorItr->speed;
+					groupSize = get<2>(currentGoal);
 
-				// was 2.0f
-				// is this bound by size or speeed ? 
-				// creating a lower ovidance allows them to swim in cirlces more.
-				if (dist <= 800.0f)
-				{
-					vavoid = vavoid + (this->GetActorLocation() - ActorItr->GetActorLocation());
+					// was 2.0f
+					// is this bound by size or speeed ? 
+					// creating a lower ovidance allows them to swim in cirlces more.
+					if (dist <= avoidanceDistance)
+					{
+						vavoid = vavoid + (this->GetActorLocation() - ActorItr->GetActorLocation());
+					}
+
+
+
 				}
-
-				gSpeed = gSpeed + ActorItr->speed;
-
 			}
 		}
-	}
 
-	// Look for eligible AI- if find not in group
 
-	if (groupSize > 0) {
-
-		vcentre = vcentre / groupSize + (goalPos - this->GetActorLocation());
+		vcentre = vcentre / groupSize + (get<1>(currentGoal) - this->GetActorLocation());
 		speed = gSpeed / groupSize;
 
 		FVector direction = (vcentre + (vavoid)) - this->GetActorLocation();
@@ -292,8 +351,192 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 		this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), rotationSpeed * DeltaTime));
 		speed = FMath::FRandRange(speedUpper, speedLower);
 
+
+		// Get new version of goaal in case instuctions have ghanged
+		for (TActorIterator<ATestAIController> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		{
+
+			tuple<int, FVector, int, string> newGoal = ActorItr->CheckGoal(get<0>(currentGoal));
+			
+			SetGoal(newGoal);
+
+		}
+
+		// check if the "CANCELLED" instruciton has been set
+
+		if (get<3>(currentGoal) == "CANELLED") {
+
+			hasGroup = false;
+			hasGoal = false;
+
+
+
+		}
+
+
+
+
+
+
+
 	}
-}
+	// else we need to assign aa group and goal 
+	else {
+		TArray<ATestBasicAI*> unGroupedPotentialGroup;
+	
+
+		TArray<ATestBasicAI*> groupedPotentialGroup;
+
+		TArray<ATestBasicAI*> test;
+
+		vector<int> groupedObjectiveID(maxGroupSize);
+
+
+
+
+
+		int numberGroupsFound = 0;
+
+		int unGroupedGrowingGroupSize = 0;
+		int groupedGrowingGroupSize = 0;
+
+	//	for (int i = 0; i < bots.size(); i++) {
+		//	ATestBasicAI* ActorItr = bots[i];
+
+
+		//}
+
+		// try and store iterator for each group? 
+		for (TActorIterator<ATestBasicAI> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		{
+			if (ActorItr->GetName() != this->GetName())
+			{
+
+				dist = (this->GetActorLocation() - ActorItr->GetActorLocation()).Size();
+				//FVector otherGoal = ActorItr->currentGoal;
+
+				// else they have no group
+
+				if (dist <= neighbourDistance) {
+					if (ActorItr->hasGroup == false) {
+						if (unGroupedGrowingGroupSize < maxGroupSize) {
+							
+							unGroupedPotentialGroup.Add (*ActorItr);
+							test.Add(*ActorItr);
+							
+							unGroupedGrowingGroupSize++;
+						}
+					}
+					else {
+
+						if (groupedGrowingGroupSize < maxGroupSize) {
+							//	groupedPotentialGroup[groupedGrowingGroupSize] = ActorItr.operator->;
+
+							if (find(groupedObjectiveID.begin(), groupedObjectiveID.end(), get<0>(ActorItr->currentGoal)) != groupedObjectiveID.end()) {
+							}
+							else {
+								groupedObjectiveID[numberGroupsFound] = get<0>(ActorItr->currentGoal);
+								
+								groupedPotentialGroup.Add(*ActorItr);
+								//groupedPotentialGroup[numberGroupsFound] = *ActorItr;
+								numberGroupsFound++;
+							}
+							groupedGrowingGroupSize++;
+						}
+
+					}
+
+
+
+					//if (dist <= neighbourDistance)
+					//	{
+
+
+					// was 2.0f
+					// is this bound by size or speeed ? 
+					// creating a lower ovidance allows them to swim in cirlces more.
+
+
+
+					//}
+				}
+
+			}
+		}
+
+
+		if (!hasGroup) {
+			if ((mergePolicey == "CREATE_NEW") && (unGroupedGrowingGroupSize > minGroupSize)) {
+				tuple<int, FVector, int, string> newGoal;
+
+				for (TActorIterator<ATestAIController> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+				{
+
+					newGoal = ActorItr->GetNewGoal(unGroupedGrowingGroupSize);
+					//newGoal = make_tuple(0, FVector(0, 0, 0), 4);
+
+				}
+				if (unGroupedGrowingGroupSize > 1) {
+					for (int i = 0; i < unGroupedPotentialGroup.Num(); i++) {
+						//test[i]->hasGroup = true;
+						//test[i]->SetGoal(newGoal);
+						unGroupedPotentialGroup[i]->hasGroup = true;
+						unGroupedPotentialGroup[i]->SetGoal(newGoal);
+
+					}
+				}
+				hasGroup = true;
+				SetGoal(newGoal);
+
+
+			}
+			else if ((mergePolicey == "JOIN_EXISTING") || (unGroupedGrowingGroupSize< minGroupSize)) {
+				int groupToJoin = -1;
+				tuple<int, FVector, int, string> newGoal;
+				for (TActorIterator<ATestAIController> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+				{
+
+					newGoal = ActorItr->AssignGroupTojoin(groupedObjectiveID);
+				}
+				// this is inefficient 		
+
+				SetGoal(newGoal);
+				//SetGoal(groupMember->currentGoal);
+				hasGroup = true;
+
+
+			}
+		}
+
+
+
+
+
+
+
+
+	}
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+		// Look for eligible AI- if find not in group
+		// might remove this to get more from solo fish.
+
+	}
 
 
 

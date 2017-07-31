@@ -8,6 +8,7 @@
 #include <vector>
 #include <utility>
 #include <map>
+#include <tuple>
 #include "TestBasicAI.h"
 #include "TestAIController.generated.h"
 
@@ -32,16 +33,46 @@ public:
 	void AllSpawn();
 	void MoveAI();
 	int AICounter;
-	int MaxAI;
-	int ContainerSize;
+	UPROPERTY(EditAnywhere)
+		int MaxAI;
+	UPROPERTY(EditAnywhere)
+		int ContainerSize;
 	int GoalIndex;
-	std::pair<FVector, int> GetNewGoal();
+	int SpawnArea;
+	std::tuple<int, FVector, int, std::string> GetNewGoal(int groupSize);
 	void RegisterGroup(std::vector<std::string> groupMembers);
 	std::vector<ATestBasicAI*> bots;
-	std::map<int, std::string> instructionMap;
+	std::map<int, std::tuple<int,FVector, int, std::string> > instructionMap;
 	FVector GoalPosition;
 	std::vector<ATestBasicAI*> ReturnBots();
-	void CancelSomeGoals();
+	void RandomCancelSomeGoals();
+	void RandomChangeSomeGoals();
+
+	// to pass to ai
+	UPROPERTY(EditAnywhere)
+		int maxGroupSize;
+	UPROPERTY(EditAnywhere)
+		int minGroupSize;
+	UPROPERTY(EditAnywhere)
+		float speedUpper;
+	UPROPERTY(EditAnywhere)
+		float speedLower;
+	UPROPERTY(EditAnywhere)
+		float neighbourDistance;
+	UPROPERTY(EditAnywhere)
+		float avoidanceDistance;
+	UPROPERTY(EditAnywhere)
+		float outOfBoundsRange;
+	UPROPERTY(EditAnywhere)
+		float rotationSpeed;
+
+	std::string mergePolicey;
+	
+	
+	std::tuple<int, FVector, int, std::string> AssignGroupTojoin(std::vector<int> choices);
+
+	std::tuple<int, FVector, int, std::string> CheckGoal(int goalID);
+
 
 	
 

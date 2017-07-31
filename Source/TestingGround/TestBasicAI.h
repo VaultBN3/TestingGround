@@ -5,7 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include <string>
+#include <map>
 #include <utility>
+#include <tuple>
 #include "TestBasicAI.generated.h"
 
 UCLASS()
@@ -35,10 +37,27 @@ public:
 	float speedLower;
 	bool turning;
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
-	bool hasGoal;
-	std::pair<FVector, int> currentGoal;
-	void SetGoal(std::pair<FVector, int> newGoal);
-	int maxGroupSize;
+	float avoidanceDistance;
+	float outOfBoundsRange;
+	
+	UPROPERTY(EditAnywhere)
+		bool hasGoal;
+	UPROPERTY(EditAnywhere)
+		bool hasGroup;
+
+
+		std::tuple<int, FVector, int, std::string> currentGoal;
+
+	void SetGoal(std::tuple<int, FVector, int, std::string> newGoal);
+	UPROPERTY(EditAnywhere)
+		int maxGroupSize;
+	UPROPERTY(EditAnywhere)
+		int minGroupSize;
+	std::string mergePolicey;
+
+	void SetColour();
+	
+
 
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* mesh;
