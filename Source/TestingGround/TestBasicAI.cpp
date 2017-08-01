@@ -134,6 +134,9 @@ void ATestBasicAI::BeginPlay()
 	//mesh->SetCollisionProfileName(TEXT("BlockAll"));
 		//1000.0f for bit cluster
 
+	
+	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;
+
 
 	//FString IntAsString = FString::SanitizeFloat(speedUpper);
 	//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Speed Upper " + IntAsString);
