@@ -47,7 +47,7 @@ public:
 	std::vector<ATestBasicAI*> ReturnBots();
 	void RandomCancelSomeGoals();
 	void RandomChangeSomeGoals();
-
+	FVector GenerateRandomGoal();
 	// to pass to ai
 	UPROPERTY(EditAnywhere)
 		int maxGroupSize;
@@ -65,6 +65,24 @@ public:
 		float outOfBoundsRange;
 	UPROPERTY(EditAnywhere)
 		float rotationSpeed;
+
+	UPROPERTY(EditAnywhere)
+		bool randomGroupSize;
+
+	UPROPERTY(EditAnywhere)
+		bool randomSpacing;
+	
+
+
+
+	UPROPERTY(EditAnywhere)
+		float randomSpacingLower;
+
+	UPROPERTY(EditAnywhere)
+		float randomSpacingUpper;
+
+
+
 
 	std::string mergePolicey;
 	

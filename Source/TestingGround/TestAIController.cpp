@@ -16,7 +16,7 @@ using namespace std;
 // Sets default values
 ATestAIController::ATestAIController()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	AICounter = 0;
 	MaxAI = 400;
@@ -29,7 +29,7 @@ ATestAIController::ATestAIController()
 	GoalIndex = 0;
 
 
-	FVector Location(0.0f, 0.0f,2000.0f);
+	FVector Location(0.0f, 0.0f, 2000.0f);
 	GoalPosition = Location;
 
 
@@ -42,26 +42,34 @@ ATestAIController::ATestAIController()
 	outOfBoundsRange = 200000;
 	rotationSpeed = 4.0f;
 
+	randomGroupSize = true;
+	randomSpacing = true;
+
+	randomSpacingLower = 150.0f;
+	randomSpacingUpper = 800.0f;
+
+
 	mergePolicey = "CREATE_NEW";
 }
 
 // Called when the game starts or when spawned
 void ATestAIController::BeginPlay()
-{	
+{
 
 	Super::BeginPlay();
 
 
-	std::map<int, std::tuple<int,FVector, int, std::string> > instructionMap;
+	std::map<int, std::tuple<int, FVector, int, std::string> > instructionMap;
 	GoalIndex = 0;
-	
-	
 
-	
+
+
+
 	AllSpawn();
+	//RandomChangeSomeGoals();
 
 
-	
+
 }
 
 
@@ -79,54 +87,77 @@ void ATestAIController::BeginPlay()
 
 // Brain can control speed of group in some way, maximum speed of all AI = something, speeed will effect other stats, health, damage etc. 
 // Brain will assign random avoidance measur to allow for more elaborate formations
-tuple<int, FVector, int, string> ATestAIController::GetNewGoal(int groupSize) {
+
+
+
+FVector ATestAIController::GenerateRandomGoal() {
 
 	FVector newGoalPos(0, 0, 0);
-		if (FMath::RandRange(0, 1) < 1) {
+	if (FMath::RandRange(0, 1) < 1) {
 		//	GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Random Loc");
-			float z = FMath::FRandRange(-ContainerSize, ContainerSize);
-			float y = FMath::FRandRange(-ContainerSize, ContainerSize);
-			float x = FMath::FRandRange(-ContainerSize, ContainerSize);
-			FVector NewGoalPosition(x, y, z);
-			newGoalPos = NewGoalPosition;
-		}
-		else {
-			int size = 0;
-			for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-			{
+		float z = FMath::FRandRange(-ContainerSize, ContainerSize);
+		float y = FMath::FRandRange(-ContainerSize, ContainerSize);
+		float x = FMath::FRandRange(-ContainerSize, ContainerSize);
+		FVector NewGoalPosition(x, y, z);
+		newGoalPos = NewGoalPosition;
+	}
+	else {
+		int size = 0;
+		for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		{
 
-				size += 1;
-
-			}
-			int objectiveSelected = FMath::RandRange(0, size);
-			FString IntAsString = FString::FromInt(objectiveSelected);
-			//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Target Objective " + IntAsString);
-			int count = 0;
-			for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-			{
-				if (count == objectiveSelected) {
-					newGoalPos = ActorItr->GetActorLocation();
-				}
-				count += 1;
-
-
-			}
+			size += 1;
 
 		}
+		int objectiveSelected = FMath::RandRange(0, size);
+		FString IntAsString = FString::FromInt(objectiveSelected);
+		//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Target Objective " + IntAsString);
+		int count = 0;
+		for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		{
+			if (count == objectiveSelected) {
+				newGoalPos = ActorItr->GetActorLocation();
+			}
+			count += 1;
+		}
 
-		tuple<int, FVector, int, string> objective = make_tuple(GoalIndex, newGoalPos, groupSize, "EXECUTING");
-		
-		//tuple<FVector, int, string> objectiveLog = make_tuple(newGoalPos, groupSize, "EXECUTING");
-		instructionMap[GoalIndex] = objective;
-		GoalIndex += 1;
+	}
 
-		FString IntAsString = FString::FromInt(GoalIndex);
-		GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Assigned group goal ID " + IntAsString);
+	return newGoalPos;
 
 
 
-		return objective;
-	
+}
+
+
+
+tuple<int, FVector, int, string> ATestAIController::GetNewGoal(int groupSize) {
+
+
+	// This is just for now, will take a random number of fish up to some maximum 
+	if (randomGroupSize) {
+		int newGroupSise = FMath::RandRange(0, groupSize);
+	}
+
+
+
+	FVector newGoalPos = GenerateRandomGoal();
+
+
+	tuple<int, FVector, int, string> objective = make_tuple(GoalIndex, newGoalPos, groupSize, "EXECUTING");
+
+	//tuple<FVector, int, string> objectiveLog = make_tuple(newGoalPos, groupSize, "EXECUTING");
+	instructionMap[GoalIndex] = objective;
+	GoalIndex += 1;
+
+	FString IntAsString = FString::FromInt(GoalIndex);
+	FString gSize = FString::FromInt(groupSize);
+	GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Assigned group goal ID " + IntAsString + "size " + gSize);
+
+
+
+	return objective;
+
 
 
 
@@ -134,8 +165,12 @@ tuple<int, FVector, int, string> ATestAIController::GetNewGoal(int groupSize) {
 
 tuple<int, FVector, int, string>  ATestAIController::AssignGroupTojoin(vector<int> choices) {
 
+	// Needs to add one to group
+
 	tuple<int, FVector, int, string> instructionLog;
 	instructionLog = instructionMap[choices[0]];
+	get<2>(instructionMap[choices[0]])++;
+	//return instructionMap[choices[0]];
 	tuple<int, FVector, int, string> choice = make_tuple(get<0>(instructionLog), get<1>(instructionLog), get<2>(instructionLog), get<3>(instructionLog));
 
 
@@ -151,8 +186,8 @@ tuple<int, FVector, int, string> ATestAIController::CheckGoal(int goalID) {
 
 void ATestAIController::RandomCancelSomeGoals() {
 
-	for (map<int, tuple<int,FVector, int, string>> ::iterator iter = instructionMap.begin(); iter != instructionMap.end(); ++iter)
-	{	
+	for (map<int, tuple<int, FVector, int, string>> ::iterator iter = instructionMap.begin(); iter != instructionMap.end(); ++iter)
+	{
 		if (FMath::RandRange(0, 10000) < 50) {
 			int k = iter->first;
 			get<3>(instructionMap[k]) = "CANCELLED";
@@ -174,43 +209,9 @@ void ATestAIController::RandomChangeSomeGoals() {
 
 	for (map<int, tuple<int, FVector, int, string>> ::iterator iter = instructionMap.begin(); iter != instructionMap.end(); ++iter)
 	{
-		if (FMath::RandRange(0, 10000) < 50) {
+		if (FMath::RandRange(0, 10000) < 5) {
 			int k = iter->first;
-			FVector newGoalPos(0, 0, 0);
-			if (FMath::RandRange(0, 1) < 1) {
-				//	GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Random Loc");
-				float z = FMath::FRandRange(-ContainerSize, ContainerSize);
-				float y = FMath::FRandRange(-ContainerSize, ContainerSize);
-				float x = FMath::FRandRange(-ContainerSize, ContainerSize);
-				FVector NewGoalPosition(x, y, z);
-				newGoalPos = NewGoalPosition;
-			}
-			else {
-				int size = 0;
-				for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-				{
-
-					size += 1;
-
-				}
-				int objectiveSelected = FMath::RandRange(0, size);
-				FString IntAsString = FString::FromInt(objectiveSelected);
-				//GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Target Objective " + IntAsString);
-				int count = 0;
-				for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-				{
-					if (count == objectiveSelected) {
-						newGoalPos = ActorItr->GetActorLocation();
-					}
-					count += 1;
-
-
-				}
-
-			}
-
-
-
+			FVector newGoalPos = GenerateRandomGoal();
 			get<1>(instructionMap[k]) = newGoalPos;
 
 
@@ -220,16 +221,20 @@ void ATestAIController::RandomChangeSomeGoals() {
 	}
 
 }
- 
+
 
 // Called every frame
 void ATestAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-
+	FString IntAsString = FString::FromInt(instructionMap.size());
+	GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Number of groups " + IntAsString);
+	
+	// Need to add some merge group to help this work better 
 	//RandomCancelSomeGoals();
-	//RandomChangeSomeGoals();
+	
+	
+	RandomChangeSomeGoals();
 
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, "Test");
 	//MoveAI();
@@ -246,9 +251,9 @@ void ATestAIController::Tick(float DeltaTime)
 			int size = 0;
 			for (TActorIterator<AObjective> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 			{
-				
+
 				size += 1;
-				
+
 			}
 			int objectiveSelected = FMath::RandRange(0, size);
 			FString IntAsString = FString::FromInt(objectiveSelected);
@@ -271,9 +276,9 @@ void ATestAIController::Tick(float DeltaTime)
 }
 
 void ATestAIController::SpawnAI()
-{		
+{
 	//ATestBasicAI* botArray[50];
-	
+
 	if (AICounter < MaxAI) {
 		float z = FMath::FRandRange(-SpawnArea, SpawnArea);
 		float y = FMath::FRandRange(-SpawnArea, SpawnArea);
@@ -303,15 +308,15 @@ vector<ATestBasicAI*> ATestAIController::ReturnBots() {
 
 void ATestAIController::TimedSpawn() {
 
-		
-		FTimerHandle SpawnHandle;
-		GetWorldTimerManager().SetTimer(
-			SpawnHandle, this, &ATestAIController::SpawnAI, 1.0f, true);
 
-		FTimerHandle MoveHandle;
+	FTimerHandle SpawnHandle;
+	GetWorldTimerManager().SetTimer(
+		SpawnHandle, this, &ATestAIController::SpawnAI, 1.0f, true);
 
-		GetWorldTimerManager().SetTimer(MoveHandle, this, &ATestAIController::MoveAI, 0.01f, true);
-		
+	FTimerHandle MoveHandle;
+
+	GetWorldTimerManager().SetTimer(MoveHandle, this, &ATestAIController::MoveAI, 0.01f, true);
+
 
 }
 
@@ -348,9 +353,9 @@ void ATestAIController::MoveAI() {
 		FVector move = FMath::VInterpTo(botCurrent, playerCurrent, 0.1f, 0.1f);
 		FVector move2 = FMath::Lerp(botCurrent, playerCurrent, 0.1f);
 		bot->SetActorLocation(move);
-		
-		
-		
+
+
+
 
 
 

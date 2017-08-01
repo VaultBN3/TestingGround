@@ -27,7 +27,8 @@ public:
 	std::vector<AObjective*> objectives;
 	void CreateObjectives();
 	int NumObjectives;
-	int MaxObjectives;
+	UPROPERTY(EditAnywhere)
+		int MaxObjectives;
 	int SpawnArea;
 
 	

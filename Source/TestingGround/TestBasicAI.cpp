@@ -92,6 +92,14 @@ void ATestBasicAI::BeginPlay()
 
 		outOfBoundsRange = ActorItr->outOfBoundsRange;
 
+		randomSpacing = ActorItr->randomSpacing;
+		
+		randomGroupSize = ActorItr->randomGroupSize;
+
+		randomSpacingUpper = ActorItr->randomSpacingUpper;
+
+		randomSpacingLower = ActorItr->randomSpacingLower;
+
 
 	}
 
@@ -343,13 +351,13 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 
 		FVector direction = (vcentre + (vavoid)) - this->GetActorLocation();
 
-		if (FMath::RandRange(0, 10000) < 100) {
-			speed = speed * 10;
+		//if (FMath::RandRange(0, 10000) < 100) {
+		//	speed = speed * 10;
 			// needs to be on a timer.
-		}
+	//	}
 
 		this->SetActorRotation(FQuat::Slerp(this->GetActorRotation().Quaternion(), direction.ToOrientationQuat(), rotationSpeed * DeltaTime));
-		speed = FMath::FRandRange(speedUpper, speedLower);
+		//speed = FMath::FRandRange(speedUpper, speedLower);
 
 
 		// Get new version of goaal in case instuctions have ghanged
@@ -364,10 +372,11 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 
 		// check if the "CANCELLED" instruciton has been set
 
-		if (get<3>(currentGoal) == "CANELLED") {
+		if (get<3>(currentGoal) == "CANCELLED") {
 
 			hasGroup = false;
 			hasGoal = false;
+			GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, "Cancelled");
 
 
 
@@ -387,7 +396,7 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 
 		TArray<ATestBasicAI*> groupedPotentialGroup;
 
-		TArray<ATestBasicAI*> test;
+		//TArray<ATestBasicAI*> test;
 
 		vector<int> groupedObjectiveID(maxGroupSize);
 
@@ -397,7 +406,7 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 
 		int numberGroupsFound = 0;
 
-		int unGroupedGrowingGroupSize = 0;
+		int unGroupedGrowingGroupSize = 1;
 		int groupedGrowingGroupSize = 0;
 
 	//	for (int i = 0; i < bots.size(); i++) {
@@ -422,7 +431,7 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 						if (unGroupedGrowingGroupSize < maxGroupSize) {
 							
 							unGroupedPotentialGroup.Add (*ActorItr);
-							test.Add(*ActorItr);
+							//test.Add(*ActorItr);
 							
 							unGroupedGrowingGroupSize++;
 						}
@@ -477,16 +486,27 @@ void ATestBasicAI::ApplyRules(float DeltaTime) {
 
 				}
 				if (unGroupedGrowingGroupSize > 1) {
-					for (int i = 0; i < unGroupedPotentialGroup.Num(); i++) {
+					float groupAvoidance = FMath::RandRange(randomSpacingLower, randomSpacingUpper);
+					// -1 as not inlcluding this ai
+					for (int i = 0; i < get<2>(newGoal)-1; i++) {
 						//test[i]->hasGroup = true;
 						//test[i]->SetGoal(newGoal);
 						unGroupedPotentialGroup[i]->hasGroup = true;
 						unGroupedPotentialGroup[i]->SetGoal(newGoal);
 
+						if (randomSpacing) {
+							unGroupedPotentialGroup[i]->avoidanceDistance = groupAvoidance;
+						}
+
+					}
+
+
+					hasGroup = true;
+					SetGoal(newGoal);
+					if (randomSpacing) {
+						avoidanceDistance = groupAvoidance;
 					}
 				}
-				hasGroup = true;
-				SetGoal(newGoal);
 
 
 			}

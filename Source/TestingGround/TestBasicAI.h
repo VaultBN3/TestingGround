@@ -39,6 +39,15 @@ public:
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 	float avoidanceDistance;
 	float outOfBoundsRange;
+
+	float randomSpacingLower;
+
+	float randomSpacingUpper;
+
+
+
+	bool randomSpacing;
+	bool randomGroupSize;
 	
 	UPROPERTY(EditAnywhere)
 		bool hasGoal;
