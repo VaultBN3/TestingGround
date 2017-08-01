@@ -43,6 +43,7 @@ AObjective::AObjective()
 	//mesh->BodyInstance.bLockYRotation = true;
 	mesh->SetWorldScale3D(FVector(8.0f, 8.0f, 8.0f));
 	RootComponent = mesh;
+	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;
 
 
 }
